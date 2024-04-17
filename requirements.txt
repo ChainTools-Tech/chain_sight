@@ -1,0 +1,5 @@
+click~=8.1.7
+SQLAlchemy~=2.0.28
+python-dateutil~=2.9.0.post0
+requests~=2.31.0
+pytest~=8.0.2

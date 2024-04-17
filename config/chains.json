@@ -1,0 +1,36 @@
+{
+  "chains": [
+    {
+      "name": "BitSong",
+      "chain_id": "bitsong-2b",
+      "prefix": "bitsong",
+      "rpc_endpoint": "https://rpc.bitsong.chaintools.tech",
+      "api_endpoint": "https://api.bitsong.chaintools.tech",
+      "grpc_endpoint": "https://grpc.bitsong.chaintools.tech"
+    },
+    {
+      "name": "Jackal",
+      "chain_id": "jackal-1",
+      "prefix": "jkl",
+      "rpc_endpoint": "https://rpc.jackal.chaintools.tech",
+      "api_endpoint": "https://api.jackal.chaintools.tech",
+      "grpc_endpoint": "https://grpc.jackal.chaintools.tech"
+    },
+    {
+      "name": "OmniFlix",
+      "chain_id": "omniflixhub-1",
+      "prefix": "omniflix",
+      "rpc_endpoint": "https://rpc.omniflix.chaintools.tech",
+      "api_endpoint": "https://api.omniflix.chaintools.tech",
+      "grpc_endpoint": "https://grpc.omniflix.chaintools.tech"
+    },
+    {
+      "name": "Sentinel",
+      "chain_id": "sentinelhub-2",
+      "prefix": "sent",
+      "rpc_endpoint": "https://rpc.sentinel.chaintools.tech",
+      "api_endpoint": "https://api.sentinel.chaintools.tech",
+      "grpc_endpoint": "https://grpc.sentinel.chaintools.tech"
+    }
+  ]
+}
