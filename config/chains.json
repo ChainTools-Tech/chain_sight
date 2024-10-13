@@ -9,6 +9,14 @@
       "grpc_endpoint": "https://grpc.assetmantle.nodestake.top:443"
     },
     {
+      "name": "Beezee",
+      "chain_id": "beezee-1",
+      "prefix": "bze",
+      "rpc_endpoint": "https://rpc.beezee.chaintools.tech",
+      "api_endpoint": "https://api.beezee.chaintools.tech",
+      "grpc_endpoint": "https://grpc.beezee.chaintools.tech"
+    },
+    {
       "name": "BitCanna",
       "chain_id": "bitcanna-1",
       "prefix": "bcna",
