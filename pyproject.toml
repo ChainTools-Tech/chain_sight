@@ -3,7 +3,7 @@ requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "ChainSight"
+name = "chain_sight"
 version = "0.1.0"
 description = "Blockchain data aggregator."
 authors = [
@@ -30,4 +30,4 @@ dynamic = ["dependencies"]
 dependencies = {file = ["requirements.txt"]}
 
 [project.scripts]
-cosmos_exporter = "__main__:main"
+chain_sight = "__main__:main"
