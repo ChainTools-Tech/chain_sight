@@ -17,7 +17,7 @@ def main():
     initialize_database()
 
     log_level = get_log_level(args.log_level)
-    setup_logging(log_file='chainsight.log', log_level=log_level)
+    setup_logging(log_file=args.log_file, log_level=log_level)
 
     if args.command == 'config-import':
         config_import()
