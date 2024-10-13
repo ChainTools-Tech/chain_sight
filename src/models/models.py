@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, Float, BigInteger, ForeignKey, DateTime, JSON, \
     Boolean
 from sqlalchemy.orm import relationship
-from services.database import Base
+from services.database_config import Base
 
 
 class ChainConfig(Base):

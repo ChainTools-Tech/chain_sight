@@ -1,32 +1,13 @@
 import json
 import logging
-import os
 
 from dateutil import parser
-from dotenv import load_dotenv
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
 from models.models import Validator, ChainConfig, Delegator, GovernanceProposal
-
+from services.database_config import Session
 
 logger = logging.getLogger(__name__)
-
-load_dotenv()
-
-Base = declarative_base()
-
-# Environment-based configuration for database
-DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:///chainsight.db')
-
-engine = create_engine(DATABASE_URL)
-Session = sessionmaker(bind=engine)
-
-
-def initialize_database():
-    Base.metadata.create_all(engine)
 
 
 def insert_validator(validator_data, chain_id):
