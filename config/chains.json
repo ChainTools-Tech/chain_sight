@@ -1,6 +1,14 @@
 {
   "chains": [
     {
+      "name": "BitCanna",
+      "chain_id": "bitcanna-1",
+      "prefix": "bcna",
+      "rpc_endpoint": "https://rpc.bitcanna.chaintools.tech",
+      "api_endpoint": "https://api.bitcanna.chaintools.tech",
+      "grpc_endpoint": "https://grpc.bitcanna.chaintools.tech"
+    },
+    {
       "name": "BitSong",
       "chain_id": "bitsong-2b",
       "prefix": "bitsong",
