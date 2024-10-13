@@ -1,6 +1,14 @@
 {
   "chains": [
     {
+      "name": "AssetMantle",
+      "chain_id": "mantle-1",
+      "prefix": "mantle",
+      "rpc_endpoint": "https://rpc.assetmantle.one",
+      "api_endpoint": "https://rest.assetmantle.one",
+      "grpc_endpoint": "https://grpc.assetmantle.nodestake.top:443"
+    },
+    {
       "name": "BitCanna",
       "chain_id": "bitcanna-1",
       "prefix": "bcna",
