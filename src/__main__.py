@@ -14,9 +14,8 @@ logger = logging.getLogger(__name__)
 def main():
     args = parse_args()
 
-
     initialize_database()
-    setup_logging()
+    setup_logging('chainsight.log')
 
     if args.command == 'config-import':
         config_import()
