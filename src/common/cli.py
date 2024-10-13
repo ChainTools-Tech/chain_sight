@@ -15,7 +15,6 @@ def parse_args():
     )
     parser_config_import.add_argument('config_file_path',
                                       type=str,
-                                      required=False,
                                       action='store',
                                       default='config/chains.json',
                                       help='Path to the configuration file (default: config/chains.json).',
@@ -27,7 +26,6 @@ def parse_args():
     )
     parser_fetch_validators.add_argument('chain_name',
                                          type=str,
-                                         required=True,
                                          action='store',
                                          help='Name of the blockchain chain.'
     )
@@ -38,7 +36,6 @@ def parse_args():
     )
     parser_fetch_governance.add_argument('chain_name',
                                          type=str,
-                                         required=True,
                                          action='store',
                                          help='Name of the blockchain chain.'
     )
