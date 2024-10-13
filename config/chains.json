@@ -55,6 +55,14 @@
       "rpc_endpoint": "https://rpc.sentinel.chaintools.tech",
       "api_endpoint": "https://api.sentinel.chaintools.tech",
       "grpc_endpoint": "https://grpc.sentinel.chaintools.tech"
+    },
+    {
+      "name": "Sifchain",
+      "chain_id": "sifchain-1",
+      "prefix": "sif",
+      "rpc_endpoint": "https://sifchain-rpc.polkachu.com",
+      "api_endpoint": "https://sifchain-api.polkachu.com",
+      "grpc_endpoint": "https://sifchain-mainnet-grpc.autostake.com:443"
     }
   ]
 }
