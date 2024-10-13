@@ -20,11 +20,9 @@ def main():
     if args.command == 'config-import':
         config_import()
     elif args.command == 'fetch-and-store-validators':
-        config = load_config(args.chain_name)
-        fetch_and_store_validators(config, args.chain_name)
+        fetch_and_store_validators(args.chain_name)
     elif args.command == 'fetch-and-store-governance-proposals':
-        config = load_config(args.chain_name)
-        fetch_and_store_governance_proposals(config, args.chain_name)
+        fetch_and_store_governance_proposals(args.chain_name)
 
 
 if __name__ == '__main__':
