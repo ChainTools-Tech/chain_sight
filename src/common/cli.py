@@ -42,5 +42,17 @@ def parse_args():
                                          help='Name of the blockchain chain.'
     )
 
+    parser.add_argument('--log-file',
+                        action='store',
+                        dest='log_file',
+                        default='chain_sight.log',
+                        help='Set the log file path')
+    parser.add_argument('--log-level',
+                        action='store',
+                        dest='log_level',
+                        default='INFO',
+                        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
+                        help='Set the logging level.')
+
     return parser.parse_args()
 
