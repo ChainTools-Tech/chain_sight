@@ -1,8 +1,9 @@
 import requests
 import logging
 
-from src import Delegator, Session
-from src import insert_delegator
+from models.models import Delegator
+from services.database import insert_delegator
+from services.database_config import Session
 
 
 # Assuming you've already called setup_logging() in your main.py or somewhere before this
