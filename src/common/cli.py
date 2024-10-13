@@ -6,7 +6,9 @@ logger = logging.getLogger(__name__)
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='CLI tool for configuration and data fetching.')
+    parser = argparse.ArgumentParser(prog='chain_sight',
+                                     description='CLI tool for configuration and data fetching.',
+                                     epilog='... and data will go to database')
     subparsers = parser.add_subparsers(dest='command', required=True, help='Available commands')
 
     # config-import command
