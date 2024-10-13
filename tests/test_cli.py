@@ -1,7 +1,7 @@
 import pytest
 from click.testing import CliRunner
-from src.cli.commands import fetch_and_store_validators, fetch_and_store_governance_proposals
-from src.common.utils import load_config
+from src import fetch_and_store_validators, fetch_and_store_governance_proposals
+
 
 @pytest.fixture
 def runner():

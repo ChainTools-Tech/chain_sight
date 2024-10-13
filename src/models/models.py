@@ -1,7 +1,7 @@
-from sqlalchemy import create_engine, Column, Integer, String, Float, BigInteger, ForeignKey, DateTime, JSON, \
-    UniqueConstraint, Boolean
-from sqlalchemy.orm import relationship, sessionmaker
-from src.services.database_config import Base, Session
+from sqlalchemy import Column, Integer, String, Float, BigInteger, ForeignKey, DateTime, JSON, \
+    Boolean
+from sqlalchemy.orm import relationship
+from services.database_config import Base
 
 
 class ChainConfig(Base):

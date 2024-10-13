@@ -2,8 +2,8 @@ import json
 import logging
 from dateutil import parser
 from sqlalchemy.exc import IntegrityError
-from src.models.models import Validator, Base, ChainConfig, Delegator, GovernanceProposal
-from src.services.database_config import Session
+from models.models import Validator, ChainConfig, Delegator, GovernanceProposal
+from services.database_config import Session
 
 # Initialize logging for this module
 logger = logging.getLogger(__name__)

@@ -1,5 +1,5 @@
 import pytest
-from src.models.models import Validator, Base
+from src import Base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 

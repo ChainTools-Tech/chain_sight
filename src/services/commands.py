@@ -1,37 +1,25 @@
 import json
+import logging
 import os
 
-import click
-import logging
 
-from src.models.models import ChainConfig
-from src.services.blockchain import fetch_validators, fetch_and_store_delegators, fetch_governance_proposals
-from src.services.database import insert_validator, insert_or_update_governance_proposal
-from src.services.database_config import Session
-from src.common.utils import load_config
+from services.database import ChainConfig
+from services.blockchain import fetch_validators, fetch_and_store_delegators, fetch_governance_proposals
+from services.database import insert_validator, insert_or_update_governance_proposal
+from services.database_config import Session
+from common.config import load_config
 
 
-# Setup logger for this module
 logger = logging.getLogger(__name__)
 
 
-@click.group()
-def cli():
-    pass
-
-
-@click.command(name='config-import')
 def config_import():
-    """Import chain configurations from config.json into the database."""
-    # Path to your config.json file
     base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
     config_path = os.path.join(base_dir, 'config', 'chains.json')  # Correct file name and path
 
-    # Read the configuration file
     with open(config_path, 'r') as file:
         config_data = json.load(file)
 
-    # Create a new database session
     session = Session()
 
     try:
@@ -53,28 +41,24 @@ def config_import():
                     grpc_endpoint=chain['grpc_endpoint']
                 )
                 session.add(new_chain)
-                click.echo(f"Added new chain configuration: {chain['name']}")
+                logger.info(f"Added new chain configuration: {chain['name']}")
 
         # Commit the session to save changes to the database
         session.commit()
-        click.echo("Configurations imported successfully.")
+        logger.info("Configurations imported successfully.")
     except Exception as e:
         session.rollback()
-        click.echo(f"An error occurred: {e}")
+        logger.error(f"An error occurred: {e}")
     finally:
         session.close()
 
 
-@click.command()
-@click.argument('chain_name')
 def fetch_and_store_validators(chain_name):
-    # Load the specific chain configuration
     chain_config = load_config(chain_name)
     if not chain_config:
         logger.error(f"No configuration found for chain: {chain_name}")
         return
 
-    # Fetch validators using the loaded chain configuration
     validators = fetch_validators(chain_config)
     if validators:
         for validator in validators:
@@ -88,8 +72,6 @@ def fetch_and_store_validators(chain_name):
         logger.warning(f"No validators found for {chain_name}.")
 
 
-@click.command()
-@click.argument('chain_name')
 def fetch_and_store_governance_proposals(chain_name):
     chain_config = load_config(chain_name)
     if not chain_config:
@@ -105,8 +87,3 @@ def fetch_and_store_governance_proposals(chain_name):
         logger.info(f"Governance proposals for {chain_name} fetched and stored successfully.")
     else:
         logger.warning(f"No governance proposals found for {chain_name}.")
-
-
-cli.add_command(fetch_and_store_validators)
-cli.add_command(fetch_and_store_governance_proposals)
-cli.add_command(config_import)

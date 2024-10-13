@@ -1,5 +1,3 @@
-# src/common/utils.py
-
 import json
 
 def load_config(chain_name=None):

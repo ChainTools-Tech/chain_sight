@@ -4,7 +4,7 @@ from diagrams.generic.blank import Blank
 with Diagram("ChainSight Module Relationships", show=False):
     with Cluster("src"):
         with Cluster("common"):
-            utils = Blank("utils.py")
+            utils = Blank("config.py")
 
         with Cluster("models"):
             models = Blank("models.py")

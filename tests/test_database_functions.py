@@ -1,6 +1,6 @@
 import pytest
-from src.services.database import insert_validator
-from src.models.models import Base, Validator
+from src import insert_validator
+from src import Base, Validator
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
