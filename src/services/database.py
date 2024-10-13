@@ -47,7 +47,7 @@ def insert_validator(validator_data, chain_id):
         validator = Validator(**prepared_data)
         session.add(validator)
         session.commit()
-        logger.info(f"Validator {validator_data.get('operator_address')} inserted successfully.")
+        logger.debug(f"Validator {validator_data.get('operator_address')} inserted successfully.")
     except Exception as e:
         logger.error(f"An error occurred: {e}")
         session.rollback()
@@ -69,7 +69,7 @@ def insert_delegator(delegator_data, validator_address):
             if existing_delegator.balance_amount != int(balance["amount"]):
                 existing_delegator.balance_amount = int(balance["amount"])
                 session.commit()
-                logger.info(f"Updated balance for delegator {delegation['delegator_address']} of validator {validator_address}.")
+                logger.debug(f"Updated balance for delegator {delegation['delegator_address']} of validator {validator_address}.")
         else:
             # If not existing, insert new delegator
             new_delegator = Delegator(
@@ -81,7 +81,7 @@ def insert_delegator(delegator_data, validator_address):
             )
             session.add(new_delegator)
             session.commit()
-            logger.info(f"Inserted new delegator {delegation['delegator_address']} for validator {validator_address}.")
+            logger.debug(f"Inserted new delegator {delegation['delegator_address']} for validator {validator_address}.")
 
     except Exception as e:
         logger.error(f"An error occurred while processing delegator: {e}")
@@ -128,7 +128,7 @@ def insert_or_update_governance_proposal(proposal_data, chain_id):
 
         session.add(proposal)
         session.commit()
-        logger.info(f"Governance proposal {proposal_data['proposal_id']} for chain {chain_id} inserted successfully.")
+        logger.debug(f"Governance proposal {proposal_data['proposal_id']} for chain {chain_id} inserted successfully.")
     except IntegrityError as e:
         # Rollback in case of unique constraint violation or other SQL-related errors
         logger.error(f"A database integrity error occurred: {e}")
