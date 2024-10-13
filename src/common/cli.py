@@ -10,20 +10,16 @@ def parse_args():
     subparsers = parser.add_subparsers(dest='command', required=True, help='Available commands')
 
     # config-import command
-    parser.add_argument('config-import',
+    parser_config_import = subparsers.add_parser('config-import',
                                                  help='Import a configuration file.'
     )
-    # parser_config_import = subparsers.add_parser('config-import',
-    #                                              help='Import a configuration file.'
-    # )
-    # parser_config_import.add_argument('config_file_path',
-    #                                   type=str,
-    #                                   required=False,
-    #                                   action='store',
-    #                                   dest='config_file_path',
-    #                                   default='config/chains.json',
-    #                                   help='Path to the configuration file (default: config/chains.json).',
-    # )
+    parser_config_import.add_argument('config_file_path',
+                                      type=str,
+                                      required=False,
+                                      action='store',
+                                      default='config/chains.json',
+                                      help='Path to the configuration file (default: config/chains.json).',
+    )
 
     # fetch-and-store-validators command
     parser_fetch_validators = subparsers.add_parser('fetch-and-store-validators',
@@ -33,7 +29,6 @@ def parse_args():
                                          type=str,
                                          required=True,
                                          action='store',
-                                         dest='chain_name',
                                          help='Name of the blockchain chain.'
     )
 
@@ -45,7 +40,6 @@ def parse_args():
                                          type=str,
                                          required=True,
                                          action='store',
-                                         dest='chain_name',
                                          help='Name of the blockchain chain.'
     )
 
