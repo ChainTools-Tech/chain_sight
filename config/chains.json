@@ -69,7 +69,7 @@
       "chain_id": "stargaze-1",
       "prefix": "stars",
       "rpc_endpoint": "https://rpc.stargaze-apis.com",
-      "api_endpoint": "https://rest.stargaze-apis.com",
+      "api_endpoint": "https://stargaze-api.polkachu.com",
       "grpc_endpoint": "https://stargaze-mainnet-grpc.autostake.com:443"
     }
   ]
