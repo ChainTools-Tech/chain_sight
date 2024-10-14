@@ -37,7 +37,7 @@ def fetch_and_store_delegators(validator_addr, chain_config):
 
 
 def fetch_governance_proposals(chain_config):
-    proposals_endpoint = f"{chain_config['api_endpoint']}/cosmos/gov/v1beta1/proposals"
+    proposals_endpoint = f"{chain_config['api_endpoint']}/cosmos/gov/v1/proposals"
     all_proposals = []
     next_key = None
     page_number = 0  # Start from page 0
