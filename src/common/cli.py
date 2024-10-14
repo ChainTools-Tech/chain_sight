@@ -9,33 +9,23 @@ def parse_args():
     parser = argparse.ArgumentParser(prog='chain_sight',
                                      description='CLI tool for configuration and data fetching.',
                                      epilog='... and data will go to database')
-    subparsers = parser.add_subparsers(dest='command', required=True, help='Available commands')
+    group = parser.add_mutually_exclusive_group(required=True)
 
     # config-import command
-    parser_config_import = subparsers.add_parser('config-import',
-                                                 help='Import a configuration file.')
-    parser_config_import.add_argument('config_file_path',
-                                      type=str,
-                                      action='store',
-                                      default='config/chains.json',
-                                      help='Path to the configuration file (default: config/chains.json).')
-
-    # fetch-and-store-validators command
-    parser_fetch_validators = subparsers.add_parser('fetch-and-store-validators',
-                                                    help='Fetch and store validators data.')
-    parser_fetch_validators.add_argument('chain_name',
-                                         type=str,
-                                         action='store',
-                                         help='Name of the blockchain chain.')
-
-    # fetch-and-store-governance-proposals command
-    parser_fetch_governance = subparsers.add_parser('fetch-and-store-governance-proposals',
-                                                    help='Fetch and store governance proposals.')
-    parser_fetch_governance.add_argument('chain_name',
-                                         type=str,
-                                         action='store',
-                                         help='Name of the blockchain chain.')
-
+    group.add_argument('--config',
+                       type=str,
+                       action='store',
+                       choices=['import', 'display'],
+                       help='Use configuration mode')
+    group.add_argument('--fetch',
+                       type=str,
+                       action='store',
+                       choices=['validators', 'governance'],
+                       help='Use fetch mode')
+    parser.add_argument('--chain',
+                        type=str,
+                        action='store',
+                        help='Specify the chain (required if --fetch is used)')
     parser.add_argument('--log-file',
                         action='store',
                         dest='log_file',
@@ -48,4 +38,12 @@ def parse_args():
                         choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
                         help='Set the logging level.')
 
-    return parser.parse_args()
+    args = parser.parse_args()
+
+    # Perform conditional checks here
+    if args.fetch and not args.chain:
+        parser.error("argument --chain is required when --fetch is specified")
+    if args.config and args.chain:
+        parser.error("argument --chain is not allowed with --config")
+
+    return args
