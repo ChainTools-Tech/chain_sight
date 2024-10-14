@@ -19,19 +19,16 @@ def main():
     log_level = get_log_level(args.log_level)
     setup_logging(log_file=args.log_file, log_level=log_level)
 
-    # if args.command == 'config-import':
-    #     config_import()
-    # elif args.command == 'fetch-and-store-validators':
-    #     fetch_and_store_validators(args.chain_name)
-    # elif args.command == 'fetch-and-store-governance-proposals':
-    #     fetch_and_store_governance_proposals(args.chain_name)
-
-    # Use the arguments
     if args.config:
-        print(f"Configuration mode selected: {args.config}")
+        logger.debug(f'Configuration mode selected: {args.config}')
+        config_import()
     elif args.fetch:
-        print(f"Fetch mode selected: {args.fetch}")
-        print(f"Chain specified: {args.chain}")
+        logger.debug(f'Fetch mode selected: {args.fetch}')
+        logger.debug(f'Chain specified: {args.chain}')
+        if args.fetch == 'governance':
+            fetch_and_store_governance_proposals(args.chain)
+        elif args.fetch == 'validators':
+            fetch_and_store_validators(args.chain)
 
 if __name__ == '__main__':
     main()
