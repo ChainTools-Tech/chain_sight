@@ -100,11 +100,11 @@ def insert_or_update_governance_proposal(proposal_data, chain_id):
             return
 
         # Attempt to find an existing proposal to prevent duplicates
-        existing_proposal = session.query(GovernanceProposal).filter_by(proposal_id=proposal_data["proposal_id"],
+        existing_proposal = session.query(GovernanceProposal).filter_by(proposal_id=proposal_data["id"],
                                                                         chain_id=chain_id).first()
 
         if existing_proposal:
-            logger.info(f"Governance proposal {proposal_data['proposal_id']} for chain {chain_id} already exists. Skipping.")
+            logger.info(f"Governance proposal {proposal_data['id']} for chain {chain_id} already exists. Skipping.")
             return
 
         # Create and add new proposal since it doesn't exist
