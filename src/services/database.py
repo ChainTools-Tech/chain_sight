@@ -109,7 +109,7 @@ def insert_or_update_governance_proposal(proposal_data, chain_id):
 
         # Create and add new proposal since it doesn't exist
         proposal = GovernanceProposal(
-            proposal_id=proposal_data["proposal_id"],
+            proposal_id=proposal_data["id"],
             chain_config_id=chain_config.id,
             chain_id=chain_id,
             title=proposal_data["content"]["title"],
@@ -129,7 +129,7 @@ def insert_or_update_governance_proposal(proposal_data, chain_id):
 
         session.add(proposal)
         session.commit()
-        logger.debug(f"Governance proposal {proposal_data['proposal_id']} for chain {chain_id} inserted successfully.")
+        logger.debug(f"Governance proposal {proposal_data['id']} for chain {chain_id} inserted successfully.")
     except IntegrityError as e:
         # Rollback in case of unique constraint violation or other SQL-related errors
         logger.error(f"A database integrity error occurred: {e}")
