@@ -52,6 +52,11 @@ def config_import():
         session.close()
 
 
+def config_display():
+    config = load_config()
+    print(json.dumps(config, indent=4))
+
+
 def fetch_and_store_validators(chain_name):
     chain_config = load_config(chain_name)
     if not chain_config:

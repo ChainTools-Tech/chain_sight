@@ -1,9 +1,8 @@
 import logging
+import services.commands
 
 from common.cli import parse_args
-from common.config import load_config
 from common.logger import get_log_level, setup_logging
-from services.commands import config_import, fetch_and_store_governance_proposals, fetch_and_store_validators
 from services.database_config import initialize_database
 
 
@@ -21,14 +20,17 @@ def main():
 
     if args.config:
         logger.debug(f'Configuration mode selected: {args.config}')
-        config_import()
+        if args.config == 'import':
+            services.commands.config_import()
+        elif args.config == 'display':
+            services.commands.config_display()
     elif args.fetch:
         logger.debug(f'Fetch mode selected: {args.fetch}')
         logger.debug(f'Chain specified: {args.chain}')
         if args.fetch == 'governance':
-            fetch_and_store_governance_proposals(args.chain)
+            services.commands.fetch_and_store_governance_proposals(args.chain)
         elif args.fetch == 'validators':
-            fetch_and_store_validators(args.chain)
+            services.commands.fetch_and_store_validators(args.chain)
 
 if __name__ == '__main__':
     main()
