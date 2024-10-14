@@ -38,12 +38,37 @@ def fetch_and_store_delegators(validator_addr, chain_config):
 
 def fetch_governance_proposals(chain_config):
     proposals_endpoint = f"{chain_config['api_endpoint']}/cosmos/gov/v1beta1/proposals"
-    response = requests.get(proposals_endpoint)
-    if response.status_code == 200:
-        return response.json().get('proposals', [])
-    else:
-        logger.error("Failed to fetch governance proposals.")
-        return []
+    all_proposals = []
+    next_key = None
+    page_number = 0  # Start from page 0
+
+    logger.info("Starting to fetch governance proposals.")
+
+    while True:
+        params = {}
+        if next_key:
+            params['pagination.key'] = next_key
+
+        logger.debug(f"Fetching page {page_number} of proposals.")
+        response = requests.get(proposals_endpoint, params=params)
+        if response.status_code == 200:
+            data = response.json()
+            proposals = data.get('proposals', [])
+            all_proposals.extend(proposals)
+            logger.debug(f"Fetched {len(proposals)} proposals from page {page_number}. Total proposals so far: {len(all_proposals)}")
+
+            pagination = data.get('pagination', {})
+            next_key = pagination.get('next_key')
+            if not next_key:
+                logger.info("No more pages to fetch. Completed fetching all proposals.")
+                break  # No more pages
+            else:
+                page_number += 1  # Increment page number
+        else:
+            logger.error(f"Failed to fetch governance proposals. Status code: {response.status_code}. Response: {response.text}")
+            break
+
+    return all_proposals
 
 
 def cleanup_delegators(active_delegators, validator_address):
