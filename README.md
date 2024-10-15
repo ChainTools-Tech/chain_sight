@@ -34,13 +34,13 @@ ChainSight provides a CLI for interacting with blockchain data. Below are some e
 - Fetch and store validators and their delegators for a specified chain:
 
 ```bash
-python main.py fetch-and-store-validators <CHAIN_NAME>
+python main.py --fetch validators --chain <CHAIN_NAME> --log-level <LOG_LEVEL>
 ```
 
 - Fetch and store governance proposals for a specified chain:
 
 ```bash
-python main.py fetch-and-store-governance-proposals <CHAIN_NAME>
+python main.py --fetch governance --chain <CHAIN_NAME> --log-level <LOG_LEVEL>
 ```
 
 Replace `<CHAIN_NAME>` with the name of the blockchain network as configured in your `chains.json` configuration file.
