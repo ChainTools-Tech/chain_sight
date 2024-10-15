@@ -26,7 +26,7 @@ class Validator(Base):
     consensus_pubkey = Column(String)
     jailed = Column(Boolean)
     status = Column(String)
-    tokens = Column(BigInteger)
+    tokens = Column(Numeric(precision=38, scale=18))
     delegator_shares = Column(Float)
     moniker = Column(String)
     identity = Column(String)
