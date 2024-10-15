@@ -27,7 +27,7 @@ class Validator(Base):
     jailed = Column(Boolean)
     status = Column(String)
     tokens = Column(Numeric(precision=38, scale=18))
-    delegator_shares = Column(Numeric(precision=50, scale=30))
+    delegator_shares = Column(Numeric(precision=60, scale=30))
     moniker = Column(String)
     identity = Column(String)
     website = Column(String)
@@ -49,7 +49,7 @@ class Delegator(Base):
     id = Column(Integer, primary_key=True)
     delegator_address = Column(String, index=True)
     validator_address = Column(String, ForeignKey('validators.operator_address'))
-    shares = Column(Numeric(precision=50, scale=30))
+    shares = Column(Numeric(precision=60, scale=30))
     balance_amount = Column(Numeric(precision=38, scale=18))
     balance_denom = Column(String)
 
