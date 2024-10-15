@@ -2,11 +2,11 @@ import json
 import logging
 import os
 
-from common.config import load_config
-from models.models import ChainConfig
-from services.blockchain import fetch_validators, fetch_and_store_delegators, fetch_governance_proposals
-from services.database_config import Session
-from services.database import insert_validator, insert_or_update_governance_proposal
+from chain_sight.common.config import load_config
+from chain_sight.models.models import ChainConfig
+from chain_sight.services.blockchain import fetch_validators, fetch_and_store_delegators, fetch_governance_proposals
+from chain_sight.services.database_config import Session
+from chain_sight.services.database import insert_validator, insert_or_update_governance_proposal
 
 
 logger = logging.getLogger(__name__)

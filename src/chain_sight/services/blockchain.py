@@ -1,9 +1,9 @@
 import requests
 import logging
 
-from models.models import Delegator
-from services.database_config import Session
-from services.database import insert_delegator
+from chain_sight.models.models import Delegator
+from chain_sight.services.database_config import Session
+from chain_sight.services.database import insert_delegator
 
 
 # Assuming you've already called setup_logging() in your main.py or somewhere before this

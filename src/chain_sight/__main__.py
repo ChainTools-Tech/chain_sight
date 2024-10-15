@@ -1,5 +1,4 @@
 import logging
-import services.commands
 
 from common.cli import parse_args
 from common.logger import get_log_level, setup_logging
@@ -21,16 +20,16 @@ def main():
     if args.config:
         logger.debug(f'Configuration mode selected: {args.config}')
         if args.config == 'import':
-            services.commands.config_import()
+            chain_sight.services.commands.config_import()
         elif args.config == 'display':
-            services.commands.config_display()
+            chain_sight.services.commands.config_display()
     elif args.fetch:
         logger.debug(f'Fetch mode selected: {args.fetch}')
         logger.debug(f'Chain specified: {args.chain}')
         if args.fetch == 'governance':
-            services.commands.fetch_and_store_governance_proposals(args.chain)
+            chain_sight.services.commands.fetch_and_store_governance_proposals(args.chain)
         elif args.fetch == 'validators':
-            services.commands.fetch_and_store_validators(args.chain)
+            chain_sight.services.commands.fetch_and_store_validators(args.chain)
 
 if __name__ == '__main__':
     main()

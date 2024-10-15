@@ -4,8 +4,8 @@ import logging
 from dateutil import parser
 from sqlalchemy.exc import IntegrityError
 
-from models.models import Validator, ChainConfig, Delegator, GovernanceProposal
-from services.database_config import Session
+from chain_sight.models.models import Validator, ChainConfig, Delegator, GovernanceProposal
+from chain_sight.services.database_config import Session
 
 logger = logging.getLogger(__name__)
 
