@@ -41,6 +41,14 @@
       "grpc_endpoint": "https://grpc.jackal.chaintools.tech"
     },
     {
+      "name": "Juno",
+      "chain_id": "juno-1",
+      "prefix": "juno",
+      "rpc_endpoint": "http://juno.rpc.m.stavr.tech:1067",
+      "api_endpoint": "https://juno.api.m.stavr.tech",
+      "grpc_endpoint": "https://juno.lavenderfive.com:443"
+    },
+    {
       "name": "OmniFlix",
       "chain_id": "omniflixhub-1",
       "prefix": "omniflix",
