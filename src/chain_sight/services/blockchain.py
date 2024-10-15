@@ -16,7 +16,7 @@ def fetch_validators(chain_config):
     next_key = None  # Initialize the pagination key
     while True:
         params = {
-            'pagination.limit': 1000  # Set a reasonable limit per page
+            'pagination.limit': 100  # Set a reasonable limit per page
         }
         if next_key:
             params['pagination.key'] = next_key  # Include the next_key in subsequent requests
@@ -48,7 +48,7 @@ def fetch_and_store_delegators(validator_addr, chain_config):
     next_key = None  # Initialize the pagination key
     while True:
         params = {
-            'pagination.limit': 1000  # Set a reasonable limit per page
+            'pagination.limit': 100  # Set a reasonable limit per page
         }
         if next_key:
             params['pagination.key'] = next_key  # Include the next_key in subsequent requests
