@@ -10,13 +10,35 @@ from services.database import insert_delegator
 logger = logging.getLogger(__name__)
 
 def fetch_validators(chain_config):
-    validators_endpoint = f"{chain_config['api_endpoint']}/cosmos/staking/v1beta1/validators?pagination.count_total=true"
-    response = requests.get(validators_endpoint)
-    if response.status_code == 200:
-        return response.json()['validators']
-    else:
-        logger.error("Failed to fetch validators.")
-        return []
+    validators_endpoint = f"{chain_config['api_endpoint']}/cosmos/staking/v1beta1/validators"
+    all_validators = []  # Initialize a list to collect all validators
+
+    next_key = None  # Initialize the pagination key
+    while True:
+        params = {
+            'pagination.limit': 1000  # Set a reasonable limit per page
+        }
+        if next_key:
+            params['pagination.key'] = next_key  # Include the next_key in subsequent requests
+
+        response = requests.get(validators_endpoint, params=params)
+
+        if response.status_code == 200:
+            data = response.json()
+            validators = data.get('validators', [])
+            all_validators.extend(validators)
+            logger.info(f"Fetched {len(validators)} validators.")
+
+            # Check for pagination
+            pagination = data.get('pagination', {})
+            next_key = pagination.get('next_key')
+            if not next_key:
+                break  # No more pages to fetch
+        else:
+            logger.error(f"Failed to fetch validators. Status code: {response.status_code}")
+            break  # Exit the loop if the request fails
+
+    return all_validators
 
 
 def fetch_and_store_delegators(validator_addr, chain_config):
