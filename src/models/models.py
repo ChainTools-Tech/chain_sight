@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Float, BigInteger, ForeignKey, DateTime, JSON, \
-    Boolean
+    Boolean, Numeric
 from sqlalchemy.orm import relationship
 from services.database_config import Base
 
@@ -50,7 +50,7 @@ class Delegator(Base):
     delegator_address = Column(String, index=True)
     validator_address = Column(String, ForeignKey('validators.operator_address'))
     shares = Column(String)
-    balance_amount = Column(BigInteger)
+    balance_amount = Column(Numeric(precision=38, scale=18))
     balance_denom = Column(String)
 
     # Relationship
