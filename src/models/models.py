@@ -49,7 +49,7 @@ class Delegator(Base):
     id = Column(Integer, primary_key=True)
     delegator_address = Column(String, index=True)
     validator_address = Column(String, ForeignKey('validators.operator_address'))
-    shares = Column(String)
+    shares = Column(Numeric(precision=50, scale=30))
     balance_amount = Column(Numeric(precision=38, scale=18))
     balance_denom = Column(String)
 
