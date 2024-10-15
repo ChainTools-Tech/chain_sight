@@ -20,20 +20,39 @@ def fetch_validators(chain_config):
 
 
 def fetch_and_store_delegators(validator_addr, chain_config):
-    delegations_endpoint = f"{chain_config['api_endpoint']}/cosmos/staking/v1beta1/validators/{validator_addr}/delegations?pagination.count_total=true"
-    response = requests.get(delegations_endpoint)
+    delegations_endpoint = f"{chain_config['api_endpoint']}/cosmos/staking/v1beta1/validators/{validator_addr}/delegations"
     active_delegator_addresses = []  # Initialize an empty list to collect active delegator addresses
 
-    if response.status_code == 200:
-        delegator_entries = response.json().get('delegation_responses', [])
-        for entry in delegator_entries:
-            insert_delegator(entry, validator_addr)
-            # Collect the delegator_address from each entry for later cleanup
-            active_delegator_addresses.append(entry['delegation']['delegator_address'])
-        logger.info(f"Delegators for validator {validator_addr} fetched and stored successfully.")
-        cleanup_delegators(active_delegator_addresses, validator_addr)
-    else:
-        logger.error(f"Failed to fetch delegators for validator {validator_addr}.")
+    next_key = None  # Initialize the pagination key
+    while True:
+        params = {
+            'pagination.limit': 1000  # Set a reasonable limit per page
+        }
+        if next_key:
+            params['pagination.key'] = next_key  # Include the next_key in subsequent requests
+
+        response = requests.get(delegations_endpoint, params=params)
+
+        if response.status_code == 200:
+            data = response.json()
+            delegator_entries = data.get('delegation_responses', [])
+            for entry in delegator_entries:
+                insert_delegator(entry, validator_addr)
+                # Collect the delegator_address from each entry for later cleanup
+                active_delegator_addresses.append(entry['delegation']['delegator_address'])
+            logger.info(f"Fetched {len(delegator_entries)} delegators for validator {validator_addr}.")
+
+            # Check for pagination
+            pagination = data.get('pagination', {})
+            next_key = pagination.get('next_key')
+            if not next_key:
+                break  # No more pages to fetch
+        else:
+            logger.error(f"Failed to fetch delegators for validator {validator_addr}. Status code: {response.status_code}")
+            break  # Exit the loop if the request fails
+
+    logger.info(f"Delegators for validator {validator_addr} fetched and stored successfully.")
+    cleanup_delegators(active_delegator_addresses, validator_addr)
 
 
 def fetch_governance_proposals(chain_config):
