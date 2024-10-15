@@ -27,7 +27,7 @@ class Validator(Base):
     jailed = Column(Boolean)
     status = Column(String)
     tokens = Column(Numeric(precision=38, scale=18))
-    delegator_shares = Column(Float)
+    delegator_shares = Column(Numeric(precision=50, scale=30))
     moniker = Column(String)
     identity = Column(String)
     website = Column(String)
