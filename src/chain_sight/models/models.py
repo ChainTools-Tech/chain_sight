@@ -74,7 +74,7 @@ class GovernanceProposal(Base):
     __tablename__ = 'governance_proposals'
     id = Column(Integer, primary_key=True)
     proposal_id = Column(String, nullable=False)
-    chain_id = Column(String, nullable=False)
+    chain_id = Column(String,  ForeignKey('chain_config.chain_id'), nullable=False)
     title = Column(String)
     description = Column(String)
     proposal_type = Column(String)

@@ -116,7 +116,7 @@ def config_display():
                 "prefix": chain.prefix,
                 "rpc_endpoint": chain.rpc_endpoint,
                 "api_endpoint": chain.api_endpoint,
-                "grpc_endpoint": chain.grpc_endpoint if chain.grpc_endpoint else None,  # Handle optional grpc_endpoint
+                "grpc_endpoint": chain.grpc_endpoint,
             }
             config["chains"].append(chain_dict)
 
