@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 def load_config(chain_name=None):
     """Load chain configuration from the database. Optionally, filter by chain name."""
     session = Session()
-    chain_configs = session.query(ChainConfig).all()
+    chain_configs = session.query(ChainConfig.name).all()
     logger.debug(f'Initial read of all chains: {chain_configs}')
     logger.debug(f"Retrieved {len(chain_configs)} entries from the ChainConfig table:")
     for config in chain_configs:
