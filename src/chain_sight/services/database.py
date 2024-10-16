@@ -128,7 +128,7 @@ def insert_or_update_governance_proposal(proposal_data, chain_id):
                 voting_start_time=parser.parse(proposal_data['voting_start_time']),
                 voting_end_time=parser.parse(proposal_data['voting_end_time']),
                 total_deposit=proposal_data['total_deposit'],
-                metadata=proposal_data.get('metadata'),
+                proposal_metadata=proposal_data.get('metadata'),  # Updated field name
                 proposer=proposal_data.get('proposer')
             )
             session.add(new_proposal)
@@ -142,6 +142,7 @@ def insert_or_update_governance_proposal(proposal_data, chain_id):
             existing_proposal.no_with_veto_votes = int(proposal_data['final_tally_result']['no_with_veto'])
             existing_proposal.title = proposal_data.get('title')
             existing_proposal.description = proposal_data.get('summary')
+            existing_proposal.proposal_metadata = proposal_data.get('metadata')  # Updated field name
             session.commit()
             logger.info(f"Updated governance proposal: {proposal_id}")
 
