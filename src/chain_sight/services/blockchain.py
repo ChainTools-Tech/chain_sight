@@ -104,7 +104,7 @@ def fetch_governance_proposals(chain_config):
     # Helper function to normalize proposals
     def normalize_proposal(proposal, version):
         """
-        Normalizes a proposal dictionary to a consistent format.
+        Normalizes a proposal dictionary to a consistent internal format.
 
         Args:
             proposal (dict): The proposal data as returned by the API.
@@ -135,9 +135,10 @@ def fetch_governance_proposals(chain_config):
                 "proposer": proposal.get("proposer")
             }
         elif version == 'v1beta1':
+            content = proposal.get("content", {})
             return {
                 "proposal_id": proposal.get("proposal_id"),
-                "content": proposal.get("content", {}),
+                "content": content,  # Keeping the entire content dict
                 "status": proposal.get("status"),
                 "final_tally_result": {
                     "yes": proposal.get("final_tally_result", {}).get("yes"),
@@ -150,10 +151,10 @@ def fetch_governance_proposals(chain_config):
                 "total_deposit": proposal.get("total_deposit", []),
                 "voting_start_time": proposal.get("voting_start_time"),
                 "voting_end_time": proposal.get("voting_end_time"),
-                "metadata": None,  # v1beta1 does not have these fields
-                "title": None,
-                "summary": None,
-                "proposer": None
+                "metadata": content.get("metadata"),  # If present
+                "title": content.get("title"),
+                "summary": content.get("description"),  # Using 'description' as 'summary'
+                "proposer": proposal.get("proposer", "")  # Defaulting to empty string if not present
             }
         else:
             logger.warning(f"Unknown API version: {version}. Skipping proposal.")
