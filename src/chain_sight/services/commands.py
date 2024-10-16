@@ -13,6 +13,12 @@ logger = logging.getLogger(__name__)
 
 
 def config_import(config_path):
+    """
+    Imports chain configurations from a JSON file into the database.
+
+    Args:
+        config_path (str): The file path to the configuration JSON file.
+    """
     if not os.path.isfile(config_path):
         logger.error(f"The configuration file does not exist at the specified path: {config_path}")
         return
@@ -68,9 +74,41 @@ def config_import(config_path):
         session.close()
 
 
+# def config_display():
+#     config = load_config()
+#     print(json.dumps(config, indent=4))
+
 def config_display():
-    config = load_config()
-    print(json.dumps(config, indent=4))
+    """
+    Retrieves chain configurations from the database and displays them in JSON format.
+    The output mirrors the structure of the original configuration JSON file.
+    """
+    session = Session()
+    try:
+        chains = session.query(ChainConfig).all()
+        if not chains:
+            logger.info("No chain configurations found in the database.")
+            print(json.dumps({"chains": []}, indent=4))
+            return
+
+        config = {"chains": []}
+        for chain in chains:
+            chain_dict = {
+                "name": chain.name,
+                "chain_id": chain.chain_id,
+                "prefix": chain.prefix,
+                "rpc_endpoint": chain.rpc_endpoint,
+                "api_endpoint": chain.api_endpoint,
+                "grpc_endpoint": chain.grpc_endpoint  # This may be None if not set
+            }
+            config["chains"].append(chain_dict)
+
+        # Output the configuration in JSON format
+        print(json.dumps(config, indent=4))
+    except Exception as e:
+        logger.error(f"An error occurred while displaying configurations: {e}")
+    finally:
+        session.close()
 
 
 def fetch_and_store_validators(chain_name):
