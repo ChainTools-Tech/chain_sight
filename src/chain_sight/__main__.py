@@ -1,9 +1,11 @@
 import logging
 
-from common.cli import parse_args
-from common.logger import get_log_level, setup_logging
-from services.database_config import initialize_database
-from services.commands import config_display, config_import
+import chain_sight.services.commands
+
+from chain_sight.common.cli import parse_args
+from chain_sight.common.logger import get_log_level, setup_logging
+from chain_sight.services.database_config import initialize_database
+from chain_sight.services.commands import config_display, config_import
 
 
 
