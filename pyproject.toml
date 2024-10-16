@@ -24,10 +24,19 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10"
 ]
-dynamic = ["dependencies"]
 
-[tool.setuptools.dynamic]
-dependencies = {file = ["requirements.txt"]}
+dependencies = [
+    "SQLAlchemy~=2.0.28",
+    "python-dateutil~=2.9.0.post0",
+    "requests~=2.31.0",
+    "pytest~=8.0.2",
+    "python-dotenv>=1.0.1",
+    "diagrams>=0.23.4"
+    # Add other dependencies here
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [project.scripts]
-chain_sight = "__main__:main"
+chain_sight = "chain_sight.__main__:main"
