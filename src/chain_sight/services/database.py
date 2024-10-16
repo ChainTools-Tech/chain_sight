@@ -93,11 +93,11 @@ def insert_delegator(delegator_data, validator_address):
 
 def insert_or_update_governance_proposal(proposal_data, chain_id):
     """
-    Inserts a new governance proposal or updates an existing one in the database.
+    Inserts a new governance proposal or updates an existing one.
 
     Args:
         proposal_data (dict): The normalized proposal data.
-        chain_id (str): The ID of the blockchain network.
+        chain_id (str): The chain ID of the blockchain.
 
     Returns:
         None
@@ -105,58 +105,53 @@ def insert_or_update_governance_proposal(proposal_data, chain_id):
     session = Session()
     try:
         proposal_id = proposal_data['proposal_id']
-        logger.debug(f"Processing Proposal ID {proposal_id} for Chain ID {chain_id}. Data: {proposal_data}")
+        logger.debug(f"Processing Proposal ID {proposal_id} for Chain ID {chain_id}.")
 
+        # Check if the proposal already exists
         existing_proposal = session.query(GovernanceProposal).filter_by(proposal_id=proposal_id, chain_id=chain_id).first()
 
         if not existing_proposal:
-            # Create new proposal
+            # Insert new proposal
             new_proposal = GovernanceProposal(
                 proposal_id=proposal_id,
                 chain_id=chain_id,
-                content=proposal_data.get('content'),
-                status=proposal_data.get('status'),
-                final_tally_result=proposal_data.get('final_tally_result'),
-                submit_time=proposal_data.get('submit_time'),
-                deposit_end_time=proposal_data.get('deposit_end_time'),
-                total_deposit=proposal_data.get('total_deposit'),
-                voting_start_time=proposal_data.get('voting_start_time'),
-                voting_end_time=proposal_data.get('voting_end_time'),
-                metadata=proposal_data.get('metadata'),
                 title=proposal_data.get('title'),
-                summary=proposal_data.get('summary'),
+                description=proposal_data.get('summary'),
+                proposal_type=proposal_data.get('content', {}).get('@type'),
+                status=proposal_data.get('status'),
+                yes_votes=int(proposal_data['final_tally_result']['yes']),
+                abstain_votes=int(proposal_data['final_tally_result']['abstain']),
+                no_votes=int(proposal_data['final_tally_result']['no']),
+                no_with_veto_votes=int(proposal_data['final_tally_result']['no_with_veto']),
+                submit_time=parser.parse(proposal_data['submit_time']),
+                deposit_end_time=parser.parse(proposal_data['deposit_end_time']),
+                voting_start_time=parser.parse(proposal_data['voting_start_time']),
+                voting_end_time=parser.parse(proposal_data['voting_end_time']),
+                total_deposit=proposal_data['total_deposit'],
+                metadata=proposal_data.get('metadata'),
                 proposer=proposal_data.get('proposer')
             )
             session.add(new_proposal)
             logger.info(f"Inserted new governance proposal: {proposal_id}")
         else:
-            # Update existing proposal if necessary
-            updated = False
-            for key, value in proposal_data.items():
-                if hasattr(existing_proposal, key):
-                    if getattr(existing_proposal, key) != value:
-                        setattr(existing_proposal, key, value)
-                        updated = True
-                        logger.debug(f"Updated '{key}' for Proposal ID {proposal_id} to '{value}'")
-            if updated:
-                logger.info(f"Updated governance proposal: {proposal_id}")
-            else:
-                logger.debug(f"No updates required for Proposal ID {proposal_id}")
+            # Update existing proposal
+            existing_proposal.status = proposal_data.get('status')
+            existing_proposal.yes_votes = int(proposal_data['final_tally_result']['yes'])
+            existing_proposal.abstain_votes = int(proposal_data['final_tally_result']['abstain'])
+            existing_proposal.no_votes = int(proposal_data['final_tally_result']['no'])
+            existing_proposal.no_with_veto_votes = int(proposal_data['final_tally_result']['no_with_veto'])
+            existing_proposal.title = proposal_data.get('title')
+            existing_proposal.description = proposal_data.get('summary')
+            session.commit()
+            logger.info(f"Updated governance proposal: {proposal_id}")
 
         session.commit()
-        logger.debug(f"Committed changes for Proposal ID {proposal_id}")
 
     except KeyError as e:
-        logger.error(f"Missing key during insertion/update for Proposal ID {proposal_data.get('proposal_id')}: {e}")
-        logger.error(f"Proposal Data: {proposal_data}")
-        session.rollback()
-    except SQLAlchemyError as e:
-        logger.error(f"Database error during insertion/update for Proposal ID {proposal_data.get('proposal_id')}: {e}")
-        logger.error(f"Proposal Data: {proposal_data}")
+        logger.error(f"KeyError: Missing {e} in proposal data for Proposal ID {proposal_data.get('proposal_id')}")
         session.rollback()
     except Exception as e:
-        logger.error(f"Unexpected error during insertion/update for Proposal ID {proposal_data.get('proposal_id')}: {e}")
-        logger.error(f"Proposal Data: {proposal_data}")
+        logger.error(f"Unexpected error: {e}")
         session.rollback()
     finally:
         session.close()

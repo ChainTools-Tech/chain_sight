@@ -82,150 +82,132 @@ def fetch_and_store_delegators(validator_addr, chain_config):
 
 def fetch_governance_proposals(chain_config):
     """
-    Fetches governance proposals from the specified blockchain network.
-    Attempts to use the newer '/v1/proposals' endpoint first.
-    Falls back to '/v1beta1/proposals' if '/v1/proposals' is unavailable.
+    Fetches governance proposals from the blockchain network.
+    Tries '/v1/proposals' first, then falls back to '/v1beta1/proposals'.
 
     Args:
-        chain_config (ChainConfig): The chain configuration object containing API endpoints.
+        chain_config (ChainConfig): Chain configuration object.
 
     Returns:
-        list: A list of normalized governance proposals fetched from the API.
+        list: A list of normalized governance proposals.
     """
-    # Define both endpoints, preferring the newer one
+    # Define both endpoints and try the preferred one first
     endpoints = [
         f"{chain_config.api_endpoint}/cosmos/gov/v1/proposals",
         f"{chain_config.api_endpoint}/cosmos/gov/v1beta1/proposals"
     ]
 
-    all_proposals = []
-    selected_endpoint = None  # To keep track of which endpoint is being used
+    proposals = []
+    selected_endpoint = None
+    version = None
 
-    # Helper function to normalize proposals
-    def normalize_proposal(proposal, version):
-        """
-        Normalizes a proposal dictionary to a consistent internal format.
-
-        Args:
-            proposal (dict): The proposal data as returned by the API.
-            version (str): The API version ('v1' or 'v1beta1').
-
-        Returns:
-            dict: A normalized proposal dictionary.
-        """
-        if version == 'v1':
-            return {
-                "proposal_id": proposal.get("id"),
-                "content": proposal.get("messages", [{}])[0],  # Assuming single message
-                "status": proposal.get("status"),
-                "final_tally_result": {
-                    "yes": proposal.get("final_tally_result", {}).get("yes_count"),
-                    "abstain": proposal.get("final_tally_result", {}).get("abstain_count"),
-                    "no": proposal.get("final_tally_result", {}).get("no_count"),
-                    "no_with_veto": proposal.get("final_tally_result", {}).get("no_with_veto_count")
-                },
-                "submit_time": proposal.get("submit_time"),
-                "deposit_end_time": proposal.get("deposit_end_time"),
-                "total_deposit": proposal.get("total_deposit", []),
-                "voting_start_time": proposal.get("voting_start_time"),
-                "voting_end_time": proposal.get("voting_end_time"),
-                "metadata": proposal.get("metadata"),
-                "title": proposal.get("title"),
-                "summary": proposal.get("summary"),
-                "proposer": proposal.get("proposer")
-            }
-        elif version == 'v1beta1':
-            content = proposal.get("content", {})
-            return {
-                "proposal_id": proposal.get("proposal_id"),
-                "content": content,  # Keeping the entire content dict
-                "status": proposal.get("status"),
-                "final_tally_result": {
-                    "yes": proposal.get("final_tally_result", {}).get("yes"),
-                    "abstain": proposal.get("final_tally_result", {}).get("abstain"),
-                    "no": proposal.get("final_tally_result", {}).get("no"),
-                    "no_with_veto": proposal.get("final_tally_result", {}).get("no_with_veto")
-                },
-                "submit_time": proposal.get("submit_time"),
-                "deposit_end_time": proposal.get("deposit_end_time"),
-                "total_deposit": proposal.get("total_deposit", []),
-                "voting_start_time": proposal.get("voting_start_time"),
-                "voting_end_time": proposal.get("voting_end_time"),
-                "metadata": content.get("metadata"),  # If present
-                "title": content.get("title"),
-                "summary": content.get("description"),  # Using 'description' as 'summary'
-                "proposer": proposal.get("proposer", "")  # Defaulting to empty string if not present
-            }
-        else:
-            logger.warning(f"Unknown API version: {version}. Skipping proposal.")
-            return None
-
-    # Iterate through the endpoints to find the available one
     for endpoint in endpoints:
-        logger.debug(f"Attempting to fetch governance proposals from {endpoint}.")
         try:
-            # Initial request to check if the endpoint is available
-            response = requests.get(endpoint, params={'pagination.limit': 1})
+            response = requests.get(endpoint, params={'pagination.limit': 1}, timeout=10)
             if response.status_code == 200:
                 selected_endpoint = endpoint
-                version = 'v1' if '/v1/proposals' in endpoint else 'v1beta1'
-                logger.info(f"Using governance proposals endpoint: {selected_endpoint} ({version})")
-                break  # Exit the loop if the endpoint is available
-            else:
-                logger.warning(
-                    f"Endpoint {endpoint} returned status code {response.status_code}. Trying next endpoint.")
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Error connecting to {endpoint}: {e}. Trying next endpoint.")
+                version = 'v1' if 'v1/proposals' in endpoint else 'v1beta1'
+                logger.info(f"Using endpoint: {selected_endpoint} (API version: {version})")
+                break
+        except requests.RequestException as e:
+            logger.warning(f"Failed to connect to {endpoint}: {e}")
 
     if not selected_endpoint:
-        logger.error("Neither '/v1/proposals' nor '/v1beta1/proposals' endpoints are available.")
-        return all_proposals  # Return empty list or consider raising an exception
+        logger.error("No proposals endpoint available.")
+        return proposals
 
-    # Start fetching proposals from the selected endpoint
-    proposals_endpoint = selected_endpoint
-    version = 'v1' if '/v1/proposals' in selected_endpoint else 'v1beta1'
+    return _fetch_all_proposals(selected_endpoint, version)
+
+
+def _fetch_all_proposals(endpoint, version):
+    """
+    Fetches and normalizes all governance proposals with pagination.
+    """
+    all_proposals = []
     next_key = None
-    page_number = 0  # Start from page 0
+    page_number = 0
 
     while True:
-        params = {
-            'pagination.limit': 1  # Adjust the limit as needed for efficiency
-        }
+        params = {'pagination.limit': 100}
         if next_key:
             params['pagination.key'] = next_key
 
-        logger.info(f"Fetching page {page_number} of proposals from {proposals_endpoint}.")
         try:
-            response = requests.get(proposals_endpoint, params=params)
+            response = requests.get(endpoint, params=params)
             if response.status_code == 200:
                 data = response.json()
                 proposals = data.get('proposals', [])
-
-                # Normalize and append proposals
                 for proposal in proposals:
-                    normalized = normalize_proposal(proposal, version)
+                    normalized = _normalize_proposal(proposal, version)
                     if normalized:
                         all_proposals.append(normalized)
 
-                logger.debug(
-                    f"Fetched {len(proposals)} proposals from page {page_number}. Total proposals so far: {len(all_proposals)}")
-
-                pagination = data.get('pagination', {})
-                next_key = pagination.get('next_key')
+                next_key = data.get('pagination', {}).get('next_key')
                 if not next_key:
-                    logger.info("No more pages to fetch. Completed fetching all proposals.")
-                    break  # No more pages
-                else:
-                    page_number += 1  # Increment page number
+                    break
+                page_number += 1
             else:
-                logger.error(
-                    f"Failed to fetch governance proposals. Status code: {response.status_code}. Response: {response.text}")
-                break  # Exit loop on failure
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Request exception occurred: {e}. Stopping fetch operation.")
-            break  # Exit loop on exception
+                logger.error(f"Failed to fetch proposals. Status code: {response.status_code}")
+                break
+        except requests.RequestException as e:
+            logger.error(f"Request error: {e}")
+            break
 
     return all_proposals
+
+
+def _normalize_proposal(proposal, version):
+    """
+    Normalize a governance proposal based on the API version.
+
+    Args:
+        proposal (dict): Raw proposal data from API.
+        version (str): API version ('v1' or 'v1beta1').
+
+    Returns:
+        dict: A normalized governance proposal.
+    """
+    if version == 'v1':
+        return {
+            "proposal_id": proposal.get("id"),
+            "content": proposal.get("messages", [{}])[0],
+            "status": proposal.get("status"),
+            "final_tally_result": {
+                "yes": proposal.get("final_tally_result", {}).get("yes_count"),
+                "abstain": proposal.get("final_tally_result", {}).get("abstain_count"),
+                "no": proposal.get("final_tally_result", {}).get("no_count"),
+                "no_with_veto": proposal.get("final_tally_result", {}).get("no_with_veto_count")
+            },
+            "submit_time": proposal.get("submit_time"),
+            "deposit_end_time": proposal.get("deposit_end_time"),
+            "voting_start_time": proposal.get("voting_start_time"),
+            "voting_end_time": proposal.get("voting_end_time"),
+            "metadata": proposal.get("metadata"),
+            "title": proposal.get("title"),
+            "summary": proposal.get("summary"),
+            "proposer": proposal.get("proposer")
+        }
+    else:  # v1beta1
+        content = proposal.get("content", {})
+        return {
+            "proposal_id": proposal.get("proposal_id"),
+            "content": content,
+            "status": proposal.get("status"),
+            "final_tally_result": {
+                "yes": proposal.get("final_tally_result", {}).get("yes"),
+                "abstain": proposal.get("final_tally_result", {}).get("abstain"),
+                "no": proposal.get("final_tally_result", {}).get("no"),
+                "no_with_veto": proposal.get("final_tally_result", {}).get("no_with_veto")
+            },
+            "submit_time": proposal.get("submit_time"),
+            "deposit_end_time": proposal.get("deposit_end_time"),
+            "voting_start_time": proposal.get("voting_start_time"),
+            "voting_end_time": proposal.get("voting_end_time"),
+            "metadata": content.get("metadata"),
+            "title": content.get("title"),
+            "summary": content.get("description"),
+            "proposer": proposal.get("proposer", "")
+        }
 
 
 def cleanup_delegators(active_delegators, validator_address):
