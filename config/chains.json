@@ -33,6 +33,14 @@
       "grpc_endpoint": "https://grpc.bitsong.chaintools.tech"
     },
     {
+      "name": "e-Money",
+      "chain_id": "emoney-3",
+      "prefix": "emoney",
+      "rpc_endpoint": "https://rpc.emoney.chaintools.tech",
+      "api_endpoint": "https://api.emoney.chaintools.tech",
+      "grpc_endpoint": "https://grpc.emoney.chaintools.tech"
+    },
+    {
       "name": "Jackal",
       "chain_id": "jackal-1",
       "prefix": "jkl",
