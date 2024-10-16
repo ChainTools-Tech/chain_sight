@@ -180,6 +180,7 @@ def _normalize_proposal(proposal, version):
             },
             "submit_time": proposal.get("submit_time"),
             "deposit_end_time": proposal.get("deposit_end_time"),
+            "total_deposit": proposal.get("total_deposit", []),  # Add total_deposit
             "voting_start_time": proposal.get("voting_start_time"),
             "voting_end_time": proposal.get("voting_end_time"),
             "metadata": proposal.get("metadata"),
@@ -201,6 +202,7 @@ def _normalize_proposal(proposal, version):
             },
             "submit_time": proposal.get("submit_time"),
             "deposit_end_time": proposal.get("deposit_end_time"),
+            "total_deposit": proposal.get("total_deposit", []),  # Add total_deposit
             "voting_start_time": proposal.get("voting_start_time"),
             "voting_end_time": proposal.get("voting_end_time"),
             "metadata": content.get("metadata"),
