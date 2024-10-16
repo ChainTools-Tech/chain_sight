@@ -89,7 +89,9 @@ def fetch_governance_proposals(chain_config):
     logger.debug(f'Fetching governance proposals data from {proposals_endpoint}.')
 
     while True:
-        params = {}
+        params = {
+            'pagination.limit': 100  # Set a reasonable limit per page
+        }
         if next_key:
             params['pagination.key'] = next_key
 
