@@ -90,7 +90,6 @@ class GovernanceProposal(Base):
     voting_end_time = Column(DateTime)
     proposal_metadata = Column(String)  # New field
     proposer = Column(String)  # New field
-    chain_config_id = Column(Integer, ForeignKey('chain_config.id'))
 
     # Relationship
     chain_config = relationship("ChainConfig", back_populates="governance_proposals")
