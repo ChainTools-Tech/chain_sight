@@ -14,13 +14,11 @@ def load_config(chain_name=None):
     try:
         if chain_name:
             # Query for the specified chain
-            chain_config = session.query(ChainConfig).filter(name=chain_name).first()
-            logger.debug(f'Chain config for {chain_name} chain: {chain_config}')
+            chain_config = session.query(ChainConfig).filter(ChainConfig.name == chain_name).first()
             return chain_config
         else:
             # Return all chain configurations
             chain_configs = session.query(ChainConfig).all()
-            logger.debug(f'Chain configs: {chain_configs}')
             return chain_configs
     finally:
         session.close()
