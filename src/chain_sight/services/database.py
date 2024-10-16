@@ -127,20 +127,25 @@ def insert_or_update_governance_proposal(proposal_data, chain_id):
             total_deposit=proposal_data["total_deposit"]
         )
 
+        # Add and commit the new proposal
         session.add(proposal)
         session.commit()
-        logger.debug(f"Governance proposal {proposal_data['proposal_id']} for chain {chain_id} inserted successfully.")
+        logger.debug(f"Governance proposal '{proposal_id}' for chain '{chain_id}' inserted successfully.")
+
     except IntegrityError as e:
-        # Rollback in case of unique constraint violation or other SQL-related errors
-        logger.error(f"A database integrity error occurred: {e}")
+        # Handle database integrity errors (e.g., unique constraint violations)
+        logger.error(f"Database integrity error for Proposal ID '{proposal_id}': {e}")
+        logger.error(f"Proposal Data: {proposal_data}")
         session.rollback()
     except ValueError as e:
-        # This could catch errors related to incorrect data types, such as casting errors
-        logger.error(f"A value error occurred while processing the proposal: {e}")
+        # Handle value errors (e.g., type casting issues)
+        logger.error(f"Value error processing Proposal ID '{proposal_id}': {e}")
+        logger.error(f"Proposal Data: {proposal_data}")
         session.rollback()
     except Exception as e:
-        # General catch-all for unexpected errors
-        logger.error(f"An unexpected error occurred: {e}")
+        # Handle any other unexpected exceptions
+        logger.error(f"Unexpected error processing Proposal ID '{proposal_id}': {e}")
+        logger.error(f"Proposal Data: {proposal_data}")
         session.rollback()
     finally:
         session.close()
