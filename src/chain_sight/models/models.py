@@ -14,6 +14,11 @@ class ChainConfig(Base):
     api_endpoint = Column(String, nullable=False)
     grpc_endpoint = Column(String)
 
+    def __repr__(self):
+        return (f"<ChainConfig(id={self.id}, name='{self.name}', chain_id='{self.chain_id}', "
+                f"prefix='{self.prefix}', rpc_endpoint='{self.rpc_endpoint}', "
+                f"api_endpoint='{self.api_endpoint}', grpc_endpoint='{self.grpc_endpoint}')>")
+
     # Relationships
     validators = relationship("Validator", back_populates="chain_config")
     governance_proposals = relationship("GovernanceProposal", back_populates="chain_config")
