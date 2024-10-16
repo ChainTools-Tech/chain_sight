@@ -2,7 +2,7 @@ import json
 import logging
 
 from dateutil import parser
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from chain_sight.models.models import Validator, ChainConfig, Delegator, GovernanceProposal
 from chain_sight.services.database_config import Session
@@ -92,119 +92,70 @@ def insert_delegator(delegator_data, validator_address):
 
 
 def insert_or_update_governance_proposal(proposal_data, chain_id):
+    """
+    Inserts a new governance proposal or updates an existing one in the database.
+
+    Args:
+        proposal_data (dict): The normalized proposal data.
+        chain_id (str): The ID of the blockchain network.
+
+    Returns:
+        None
+    """
     session = Session()
     try:
-        logger.debug(f"Attempting to insert/update proposal for chain_id '{chain_id}' with data: {proposal_data}")
+        proposal_id = proposal_data['proposal_id']
+        logger.debug(f"Processing Proposal ID {proposal_id} for Chain ID {chain_id}. Data: {proposal_data}")
 
-        # Retrieve the chain configuration
-        chain_config = session.query(ChainConfig).filter_by(chain_id=chain_id).first()
-        if not chain_config:
-            logger.error(f"No chain configuration found for chain_id '{chain_id}'. Proposal ID: {proposal_data.get('proposal_id')}")
-            return
-
-        # Extract proposal_id safely
-        proposal_id = proposal_data.get("proposal_id")
-        if not proposal_id:
-            logger.error(f"Proposal data missing 'proposal_id'. Data: {proposal_data}")
-            return
-
-        # Check for existing proposal to prevent duplicates
         existing_proposal = session.query(GovernanceProposal).filter_by(proposal_id=proposal_id, chain_id=chain_id).first()
 
-        if existing_proposal:
-            logger.info(f"Governance proposal '{proposal_id}' for chain '{chain_id}' already exists. Skipping insertion.")
-            return
+        if not existing_proposal:
+            # Create new proposal
+            new_proposal = GovernanceProposal(
+                proposal_id=proposal_id,
+                chain_id=chain_id,
+                content=proposal_data.get('content'),
+                status=proposal_data.get('status'),
+                final_tally_result=proposal_data.get('final_tally_result'),
+                submit_time=proposal_data.get('submit_time'),
+                deposit_end_time=proposal_data.get('deposit_end_time'),
+                total_deposit=proposal_data.get('total_deposit'),
+                voting_start_time=proposal_data.get('voting_start_time'),
+                voting_end_time=proposal_data.get('voting_end_time'),
+                metadata=proposal_data.get('metadata'),
+                title=proposal_data.get('title'),
+                summary=proposal_data.get('summary'),
+                proposer=proposal_data.get('proposer')
+            )
+            session.add(new_proposal)
+            logger.info(f"Inserted new governance proposal: {proposal_id}")
+        else:
+            # Update existing proposal if necessary
+            updated = False
+            for key, value in proposal_data.items():
+                if hasattr(existing_proposal, key):
+                    if getattr(existing_proposal, key) != value:
+                        setattr(existing_proposal, key, value)
+                        updated = True
+                        logger.debug(f"Updated '{key}' for Proposal ID {proposal_id} to '{value}'")
+            if updated:
+                logger.info(f"Updated governance proposal: {proposal_id}")
+            else:
+                logger.debug(f"No updates required for Proposal ID {proposal_id}")
 
-        # Safely extract 'content'
-        content = proposal_data.get("content", {})
-        if not content:
-            logger.error(f"Proposal '{proposal_id}' missing 'content' field. Data: proposal_data")
-            return
-
-        # Safely extract 'title' and 'description' with defaults
-        title = content.get("title")
-        if not title:
-            logger.warning(f"Proposal '{proposal_id}' missing 'title'. Setting to 'No Title Provided'.")
-            title = "No Title Provided"
-
-        description = content.get("description")
-        if not description:
-            logger.warning(f"Proposal '{proposal_id}' missing 'description'. Setting to 'No Description Provided'.")
-            description = "No Description Provided"
-
-        # Safely extract '@type'
-        proposal_type = content.get("@type")
-        if not proposal_type:
-            logger.warning(f"Proposal '{proposal_id}' missing '@type'. Setting to 'Unknown Type'.")
-            proposal_type = "Unknown Type"
-
-        # Safely extract 'summary' and 'proposer'
-        summary = proposal_data.get("summary")
-        if not summary:
-            logger.warning(f"Proposal '{proposal_id}' missing 'summary'. Setting to 'No Summary Provided'.")
-            summary = "No Summary Provided"
-
-        proposer = proposal_data.get("proposer", "Unknown Proposer")
-        if not proposer:
-            logger.warning(f"Proposal '{proposal_id}' has an empty 'proposer'. Setting to 'Unknown Proposer'.")
-            proposer = "Unknown Proposer"
-
-        # Parse datetime fields safely
-        submit_time = parser.parse(proposal_data["submit_time"]) if proposal_data.get("submit_time") else None
-        deposit_end_time = parser.parse(proposal_data["deposit_end_time"]) if proposal_data.get("deposit_end_time") else None
-        voting_start_time = parser.parse(proposal_data["voting_start_time"]) if proposal_data.get("voting_start_time") else None
-        voting_end_time = parser.parse(proposal_data["voting_end_time"]) if proposal_data.get("voting_end_time") else None
-
-        # Safely extract 'final_tally_result' with defaults
-        final_tally = proposal_data.get("final_tally_result", {})
-        yes_votes = int(final_tally.get("yes", 0))
-        abstain_votes = int(final_tally.get("abstain", 0))
-        no_votes = int(final_tally.get("no", 0))
-        no_with_veto_votes = int(final_tally.get("no_with_veto", 0))
-
-        # Safely extract 'total_deposit'
-        total_deposit = proposal_data.get("total_deposit", [])
-
-        # Create a new GovernanceProposal instance
-        proposal = GovernanceProposal(
-            proposal_id=proposal_id,
-            chain_config_id=chain_config.id,
-            chain_id=chain_id,
-            title=title,
-            summary=summary,
-            description=description,
-            proposal_type=proposal_type,
-            status=proposal_data.get("status"),
-            yes_votes=yes_votes,
-            abstain_votes=abstain_votes,
-            no_votes=no_votes,
-            no_with_veto_votes=no_with_veto_votes,
-            submit_time=submit_time,
-            deposit_end_time=deposit_end_time,
-            voting_start_time=voting_start_time,
-            voting_end_time=voting_end_time,
-            total_deposit=total_deposit,
-            metadata=proposal_data.get("metadata")
-        )
-
-        # Add and commit the new proposal
-        session.add(proposal)
         session.commit()
-        logger.debug(f"Governance proposal '{proposal_id}' for chain '{chain_id}' inserted successfully.")
+        logger.debug(f"Committed changes for Proposal ID {proposal_id}")
 
-    except IntegrityError as e:
-        # Handle database integrity errors (e.g., unique constraint violations)
-        logger.error(f"Database integrity error for Proposal ID '{proposal_id}': {e}")
+    except KeyError as e:
+        logger.error(f"Missing key during insertion/update for Proposal ID {proposal_data.get('proposal_id')}: {e}")
         logger.error(f"Proposal Data: {proposal_data}")
         session.rollback()
-    except ValueError as e:
-        # Handle value errors (e.g., type casting issues)
-        logger.error(f"Value error processing Proposal ID '{proposal_id}': {e}")
+    except SQLAlchemyError as e:
+        logger.error(f"Database error during insertion/update for Proposal ID {proposal_data.get('proposal_id')}: {e}")
         logger.error(f"Proposal Data: {proposal_data}")
         session.rollback()
     except Exception as e:
-        # Handle any other unexpected exceptions
-        logger.error(f"Unexpected error processing Proposal ID '{proposal_id}': {e}")
+        logger.error(f"Unexpected error during insertion/update for Proposal ID {proposal_data.get('proposal_id')}: {e}")
         logger.error(f"Proposal Data: {proposal_data}")
         session.rollback()
     finally:
