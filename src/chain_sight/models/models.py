@@ -88,6 +88,8 @@ class GovernanceProposal(Base):
     total_deposit = Column(JSON)
     voting_start_time = Column(DateTime)
     voting_end_time = Column(DateTime)
+    metadata = Column(String)  # New field
+    proposer = Column(String)  # New field
     chain_config_id = Column(Integer, ForeignKey('chain_config.id'))
 
     # Relationship
