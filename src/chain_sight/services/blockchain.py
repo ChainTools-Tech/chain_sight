@@ -95,7 +95,7 @@ def fetch_governance_proposals(chain_config):
         if next_key:
             params['pagination.key'] = next_key
 
-        logger.debug(f"Fetching page {page_number} of proposals.")
+        logger.info(f"Fetching page {page_number} of proposals.")
         response = requests.get(proposals_endpoint, params=params)
         if response.status_code == 200:
             data = response.json()
