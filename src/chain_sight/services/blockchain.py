@@ -168,9 +168,13 @@ def _normalize_proposal(proposal, version):
         dict: A normalized governance proposal.
     """
     if version == 'v1':
+        # Safely access 'messages' and ensure it has at least one element
+        messages = proposal.get("messages", [])
+        content = messages[0] if messages else {}
+
         return {
             "proposal_id": proposal.get("id"),
-            "content": proposal.get("messages", [{}])[0],
+            "content": content,
             "status": proposal.get("status"),
             "final_tally_result": {
                 "yes": proposal.get("final_tally_result", {}).get("yes_count"),
