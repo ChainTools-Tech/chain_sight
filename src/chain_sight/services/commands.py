@@ -158,7 +158,7 @@ def fetch_and_store_governance_proposals(chain_name):
     if proposals:
         for proposal in proposals:
             title = proposal.get("title")
-            logger.info(f"Proposal '{proposal_id}' has 'title' {title}")
+            logger.info(f"Proposal has 'title' {title}")
             insert_or_update_governance_proposal(proposal, chain_id)
         logger.info(f"Governance proposals for {chain_name} fetched and stored successfully.")
     else:
