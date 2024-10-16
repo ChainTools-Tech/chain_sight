@@ -42,6 +42,7 @@ def fetch_validators(chain_config):
 
 
 def fetch_and_store_delegators(validator_addr, chain_config):
+    logger.debug(f'Fetching delegators data from {chain_config.api_endpoint}.')
     delegations_endpoint = f"{chain_config.api_endpoint}/cosmos/staking/v1beta1/validators/{validator_addr}/delegations"
     active_delegator_addresses = []  # Initialize an empty list to collect active delegator addresses
 
