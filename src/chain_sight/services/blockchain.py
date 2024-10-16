@@ -90,7 +90,7 @@ def fetch_governance_proposals(chain_config):
         chain_config (ChainConfig): The chain configuration object containing API endpoints.
 
     Returns:
-        list: A list of governance proposals fetched from the API.
+        list: A list of normalized governance proposals fetched from the API.
     """
     # Define both endpoints, preferring the newer one
     endpoints = [
@@ -99,10 +99,67 @@ def fetch_governance_proposals(chain_config):
     ]
 
     all_proposals = []
-    next_key = None
-    page_number = 0  # Start from page 0
     selected_endpoint = None  # To keep track of which endpoint is being used
 
+    # Helper function to normalize proposals
+    def normalize_proposal(proposal, version):
+        """
+        Normalizes a proposal dictionary to a consistent format.
+
+        Args:
+            proposal (dict): The proposal data as returned by the API.
+            version (str): The API version ('v1' or 'v1beta1').
+
+        Returns:
+            dict: A normalized proposal dictionary.
+        """
+        if version == 'v1':
+            return {
+                "proposal_id": proposal.get("id"),
+                "content": proposal.get("messages", [{}])[0],  # Assuming single message
+                "status": proposal.get("status"),
+                "final_tally_result": {
+                    "yes": proposal.get("final_tally_result", {}).get("yes_count"),
+                    "abstain": proposal.get("final_tally_result", {}).get("abstain_count"),
+                    "no": proposal.get("final_tally_result", {}).get("no_count"),
+                    "no_with_veto": proposal.get("final_tally_result", {}).get("no_with_veto_count")
+                },
+                "submit_time": proposal.get("submit_time"),
+                "deposit_end_time": proposal.get("deposit_end_time"),
+                "total_deposit": proposal.get("total_deposit", []),
+                "voting_start_time": proposal.get("voting_start_time"),
+                "voting_end_time": proposal.get("voting_end_time"),
+                "metadata": proposal.get("metadata"),
+                "title": proposal.get("title"),
+                "summary": proposal.get("summary"),
+                "proposer": proposal.get("proposer")
+            }
+        elif version == 'v1beta1':
+            return {
+                "proposal_id": proposal.get("proposal_id"),
+                "content": proposal.get("content", {}),
+                "status": proposal.get("status"),
+                "final_tally_result": {
+                    "yes": proposal.get("final_tally_result", {}).get("yes"),
+                    "abstain": proposal.get("final_tally_result", {}).get("abstain"),
+                    "no": proposal.get("final_tally_result", {}).get("no"),
+                    "no_with_veto": proposal.get("final_tally_result", {}).get("no_with_veto")
+                },
+                "submit_time": proposal.get("submit_time"),
+                "deposit_end_time": proposal.get("deposit_end_time"),
+                "total_deposit": proposal.get("total_deposit", []),
+                "voting_start_time": proposal.get("voting_start_time"),
+                "voting_end_time": proposal.get("voting_end_time"),
+                "metadata": None,  # v1beta1 does not have these fields
+                "title": None,
+                "summary": None,
+                "proposer": None
+            }
+        else:
+            logger.warning(f"Unknown API version: {version}. Skipping proposal.")
+            return None
+
+    # Iterate through the endpoints to find the available one
     for endpoint in endpoints:
         logger.debug(f"Attempting to fetch governance proposals from {endpoint}.")
         try:
@@ -110,7 +167,8 @@ def fetch_governance_proposals(chain_config):
             response = requests.get(endpoint, params={'pagination.limit': 1})
             if response.status_code == 200:
                 selected_endpoint = endpoint
-                logger.info(f"Using governance proposals endpoint: {selected_endpoint}")
+                version = 'v1' if '/v1/proposals' in endpoint else 'v1beta1'
+                logger.info(f"Using governance proposals endpoint: {selected_endpoint} ({version})")
                 break  # Exit the loop if the endpoint is available
             else:
                 logger.warning(
@@ -124,6 +182,9 @@ def fetch_governance_proposals(chain_config):
 
     # Start fetching proposals from the selected endpoint
     proposals_endpoint = selected_endpoint
+    version = 'v1' if '/v1/proposals' in selected_endpoint else 'v1beta1'
+    next_key = None
+    page_number = 0  # Start from page 0
 
     while True:
         params = {
@@ -138,7 +199,13 @@ def fetch_governance_proposals(chain_config):
             if response.status_code == 200:
                 data = response.json()
                 proposals = data.get('proposals', [])
-                all_proposals.extend(proposals)
+
+                # Normalize and append proposals
+                for proposal in proposals:
+                    normalized = normalize_proposal(proposal, version)
+                    if normalized:
+                        all_proposals.append(normalized)
+
                 logger.debug(
                     f"Fetched {len(proposals)} proposals from page {page_number}. Total proposals so far: {len(all_proposals)}")
 
