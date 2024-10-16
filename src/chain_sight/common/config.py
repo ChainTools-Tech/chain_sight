@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 def load_config(chain_name=None):
     """Load chain configuration from the database. Optionally, filter by chain name."""
     session = Session()
-    chain_configs = session.query(ChainConfig).filter(ChainConfig.name == chain_name).first()
+    chain_configs = session.query(ChainConfig).filter(ChainConfig.name == chain_name).first().name
     logger.debug(f'Initial read of all chains: {chain_configs}')
     try:
         if chain_name:
