@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 def config_import(config_path):
     """
     Imports chain configurations from a JSON file into the database.
+    If a chain exists but has different parameters, updates the database record.
 
     Args:
         config_path (str): The file path to the configuration JSON file.
@@ -43,13 +44,12 @@ def config_import(config_path):
                 logger.warning(f"Skipping chain due to missing required fields: {chain}")
                 continue
 
-            # Check if the chain configuration already exists to avoid duplication
-            exists = session.query(ChainConfig).filter(
-                (ChainConfig.name == chain['name']) |
-                (ChainConfig.chain_id == chain['chain_id'])
+            # Check if the chain configuration already exists based on 'chain_id'
+            existing_chain = session.query(ChainConfig).filter(
+                ChainConfig.chain_id == chain['chain_id']
             ).first()
 
-            if not exists:
+            if not existing_chain:
                 # If it doesn't exist, create a new ChainConfig object and add it to the session
                 new_chain = ChainConfig(
                     name=chain['name'],
@@ -62,7 +62,24 @@ def config_import(config_path):
                 session.add(new_chain)
                 logger.info(f"Added new chain configuration: {chain['name']}")
             else:
-                logger.info(f"Chain configuration already exists: {chain['name']}")
+                # Compare each field to detect changes
+                updated = False
+                fields_to_compare = ['name', 'prefix', 'rpc_endpoint', 'api_endpoint', 'grpc_endpoint']
+
+                for field in fields_to_compare:
+                    config_value = chain.get(field)
+                    db_value = getattr(existing_chain, field)
+
+                    # Handle None values for optional fields like 'grpc_endpoint'
+                    if config_value != db_value:
+                        setattr(existing_chain, field, config_value)
+                        updated = True
+                        logger.debug(f"Updated '{field}' for chain '{existing_chain.name}' from '{db_value}' to '{config_value}'")
+
+                if updated:
+                    logger.info(f"Updated chain configuration: {existing_chain.name}")
+                else:
+                    logger.info(f"No changes detected for chain: {existing_chain.name}")
 
         # Commit the session to save changes to the database
         session.commit()
