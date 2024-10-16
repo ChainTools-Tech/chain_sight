@@ -14,14 +14,14 @@ class ChainConfig(Base):
     api_endpoint = Column(String, nullable=False)
     grpc_endpoint = Column(String)
 
+    # Relationships
+    validators = relationship("Validator", back_populates="chain_config")
+    governance_proposals = relationship("GovernanceProposal", back_populates="chain_config")
+
     def __repr__(self):
         return (f"<ChainConfig(id={self.id}, name='{self.name}', chain_id='{self.chain_id}', "
                 f"prefix='{self.prefix}', rpc_endpoint='{self.rpc_endpoint}', "
                 f"api_endpoint='{self.api_endpoint}', grpc_endpoint='{self.grpc_endpoint}')>")
-
-    # Relationships
-    validators = relationship("Validator", back_populates="chain_config")
-    governance_proposals = relationship("GovernanceProposal", back_populates="chain_config")
 
 
 class Validator(Base):
@@ -48,6 +48,10 @@ class Validator(Base):
     chain_config = relationship("ChainConfig", back_populates="validators")
     delegators = relationship("Delegator", back_populates="validator")
 
+    def __repr__(self):
+        return (f"<Validator(id={self.id}, operator_address='{self.operator_address}', "
+                f"status='{self.status}', moniker='{self.moniker}')>")
+
 
 class Delegator(Base):
     __tablename__ = 'delegators'
@@ -60,6 +64,10 @@ class Delegator(Base):
 
     # Relationship
     validator = relationship("Validator", back_populates="delegators")
+
+    def __repr__(self):
+        return (f"<Delegator(id={self.id}, delegator_address='{self.delegator_address}', "
+                f"validator_address='{self.validator_address}', balance_amount={self.balance_amount})>")
 
 
 class GovernanceProposal(Base):
@@ -84,3 +92,7 @@ class GovernanceProposal(Base):
 
     # Relationship
     chain_config = relationship("ChainConfig", back_populates="governance_proposals")
+
+    def __repr__(self):
+        return (f"<GovernanceProposal(id={self.id}, proposal_id='{self.proposal_id}', "
+                f"title='{self.title}', status='{self.status}')>")

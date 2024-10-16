@@ -12,17 +12,31 @@ from chain_sight.services.database import insert_validator, insert_or_update_gov
 logger = logging.getLogger(__name__)
 
 
-def config_import():
-    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-    config_path = os.path.join(base_dir, 'config', 'chains.json')  # Correct file name and path
+def config_import(config_path):
+    if not os.path.isfile(config_path):
+        logger.error(f"The configuration file does not exist at the specified path: {config_path}")
+        return
 
-    with open(config_path, 'r') as file:
-        config_data = json.load(file)
+    try:
+        with open(config_path, 'r') as file:
+            config_data = json.load(file)
+    except json.JSONDecodeError as jde:
+        logger.error(f"JSON decode error while reading the configuration file: {jde}")
+        return
+    except Exception as e:
+        logger.error(f"An unexpected error occurred while reading the configuration file: {e}")
+        return
 
     session = Session()
 
     try:
-        for chain in config_data['chains']:
+        for chain in config_data.get('chains', []):
+            # Validate required fields
+            required_fields = ['name', 'chain_id', 'prefix', 'rpc_endpoint', 'api_endpoint']
+            if not all(field in chain for field in required_fields):
+                logger.warning(f"Skipping chain due to missing required fields: {chain}")
+                continue
+
             # Check if the chain configuration already exists to avoid duplication
             exists = session.query(ChainConfig).filter(
                 (ChainConfig.name == chain['name']) |
@@ -37,17 +51,19 @@ def config_import():
                     prefix=chain['prefix'],
                     rpc_endpoint=chain['rpc_endpoint'],
                     api_endpoint=chain['api_endpoint'],
-                    grpc_endpoint=chain['grpc_endpoint']
+                    grpc_endpoint=chain.get('grpc_endpoint')  # Use .get() to handle optional fields
                 )
                 session.add(new_chain)
                 logger.info(f"Added new chain configuration: {chain['name']}")
+            else:
+                logger.info(f"Chain configuration already exists: {chain['name']}")
 
         # Commit the session to save changes to the database
         session.commit()
         logger.info("Configurations imported successfully.")
     except Exception as e:
         session.rollback()
-        logger.error(f"An error occurred: {e}")
+        logger.error(f"An error occurred during configuration import: {e}")
     finally:
         session.close()
 

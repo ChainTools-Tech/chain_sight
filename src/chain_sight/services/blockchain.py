@@ -13,6 +13,8 @@ def fetch_validators(chain_config):
     validators_endpoint = f"{chain_config.api_endpoint}/cosmos/staking/v1beta1/validators"
     all_validators = []  # Initialize a list to collect all validators
 
+    logger.debug(f'Fetching validators data from {validators_endpoint}.')
+
     next_key = None  # Initialize the pagination key
     while True:
         params = {
@@ -84,7 +86,7 @@ def fetch_governance_proposals(chain_config):
     next_key = None
     page_number = 0  # Start from page 0
 
-    logger.info("Starting to fetch governance proposals.")
+    logger.debug(f'Fetching governance proposals data from {proposals_endpoint}.')
 
     while True:
         params = {}
@@ -115,6 +117,9 @@ def fetch_governance_proposals(chain_config):
 
 def cleanup_delegators(active_delegators, validator_address):
     session = Session()
+
+    logger.debug(f'Delegators cleanup process starting.')
+
     try:
         all_delegators = session.query(Delegator).filter_by(validator_address=validator_address).all()
         inactive_delegators = [d for d in all_delegators if d.delegator_address not in active_delegators]
@@ -122,7 +127,7 @@ def cleanup_delegators(active_delegators, validator_address):
         for delegator in inactive_delegators:
             # Example for flagging as inactive
             delegator.active = False
-            logger.info(f"Flagging delegator {delegator.delegator_address} of validator {validator_address} as inactive.")
+            logger.debug(f"Flagging delegator {delegator.delegator_address} of validator {validator_address} as inactive.")
             # If deleting, uncomment the next line
             logger.info(f"Removing delegator {delegator.delegator_address} of validator {validator_address} from database.")
             session.delete(delegator)
