@@ -79,10 +79,11 @@ class GovernanceProposal(Base):
     description = Column(String)
     proposal_type = Column(String)
     status = Column(String)
-    yes_votes = Column(BigInteger)
-    abstain_votes = Column(BigInteger)
-    no_votes = Column(BigInteger)
-    no_with_veto_votes = Column(BigInteger)
+    yes_votes = Column(Numeric(precision=80, scale=0))  # Changed to Numeric with large precision
+    abstain_votes = Column(Numeric(precision=80, scale=0))  # Changed to Numeric
+    no_votes = Column(Numeric(precision=80, scale=0))  # Changed to Numeric
+    no_with_veto_votes = Column(Numeric(precision=80, scale=0))  # Changed to Numeric
+
     submit_time = Column(DateTime)
     deposit_end_time = Column(DateTime)
     total_deposit = Column(JSON)
