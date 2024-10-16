@@ -1,8 +1,9 @@
 import logging
 
-from chain_sight.common.cli import parse_args
-from chain_sight.common.logger import get_log_level, setup_logging
-from chain_sight.services.database_config import initialize_database
+from common.cli import parse_args
+from common.logger import get_log_level, setup_logging
+from services.database_config import initialize_database
+from services.commands import config_display, config_import
 
 
 
@@ -20,9 +21,9 @@ def main():
     if args.config:
         logger.debug(f'Configuration mode selected: {args.config}')
         if args.config == 'import':
-            chain_sight.services.commands.config_import()
+            config_import()
         elif args.config == 'display':
-            chain_sight.services.commands.config_display()
+            config_display()
     elif args.fetch:
         logger.debug(f'Fetch mode selected: {args.fetch}')
         logger.debug(f'Chain specified: {args.chain}')
