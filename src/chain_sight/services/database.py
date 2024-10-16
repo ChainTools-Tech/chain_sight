@@ -118,7 +118,7 @@ def insert_or_update_governance_proposal(proposal_data, chain_id):
         # Safely extract 'content'
         content = proposal_data.get("content", {})
         if not content:
-            logger.error(f"Proposal '{proposal_id}' missing 'content' field. Data: {proposal_data}")
+            logger.error(f"Proposal '{proposal_id}' missing 'content' field. Data: proposal_data")
             return
 
         # Safely extract 'title' and 'description' with defaults
