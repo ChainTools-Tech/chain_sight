@@ -90,7 +90,7 @@ def fetch_governance_proposals(chain_config):
 
     while True:
         params = {
-            'pagination.limit': 100  # Set a reasonable limit per page
+            'pagination.limit': 1  # Set a reasonable limit per page
         }
         if next_key:
             params['pagination.key'] = next_key
