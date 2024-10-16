@@ -67,8 +67,7 @@ def fetch_and_store_validators(chain_name):
     if validators:
         for validator in validators:
             # Insert each validator into the database
-            # Ensure chain_id is passed to insert_validator
-            insert_validator(validator, chain_config['chain_id'])  # Pass chain_id explicitly
+            insert_validator(validator, chain_config.chain_id)
             # After inserting a validator, fetch and store its delegators
             fetch_and_store_delegators(validator['operator_address'], chain_config)
         logger.info(f"Validators and their delegators for {chain_name} fetched and stored successfully.")
@@ -82,12 +81,12 @@ def fetch_and_store_governance_proposals(chain_name):
         logger.error(f"No configuration found for chain: {chain_name}")
         return
 
-    chain_id = chain_config["chain_id"]  # Extract the chain ID from the configuration
+    chain_id = chain_config.chain_id  # Access chain_id attribute
 
     proposals = fetch_governance_proposals(chain_config)
     if proposals:
         for proposal in proposals:
-            insert_or_update_governance_proposal(proposal, chain_id)  # Pass chain_id here
+            insert_or_update_governance_proposal(proposal, chain_id)
         logger.info(f"Governance proposals for {chain_name} fetched and stored successfully.")
     else:
         logger.warning(f"No governance proposals found for {chain_name}.")

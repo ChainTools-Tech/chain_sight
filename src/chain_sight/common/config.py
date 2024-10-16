@@ -1,6 +1,26 @@
 import json
 
+from chain_sight.services.database_config import Session
+from chain_sight.models.models import ChainConfig
+
+
 def load_config(chain_name=None):
+    """Load chain configuration from the database. Optionally, filter by chain name."""
+    session = Session()
+    try:
+        if chain_name:
+            # Query for the specified chain
+            chain_config = session.query(ChainConfig).filter(ChainConfig.name == chain_name).first()
+            return chain_config
+        else:
+            # Return all chain configurations
+            chain_configs = session.query(ChainConfig).all()
+            return chain_configs
+    finally:
+        session.close()
+
+
+def load_config_file(chain_name=None):
     """Load chain configuration. Optionally, filter by chain name."""
     with open('config/chains.json', 'r') as f:
         config = json.load(f)
@@ -9,3 +29,5 @@ def load_config(chain_name=None):
         chain_config = next((item for item in config["chains"] if item["name"] == chain_name), None)
         return chain_config
     return config
+
+

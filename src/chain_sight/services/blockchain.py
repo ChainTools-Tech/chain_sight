@@ -10,7 +10,7 @@ from chain_sight.services.database import insert_delegator
 logger = logging.getLogger(__name__)
 
 def fetch_validators(chain_config):
-    validators_endpoint = f"{chain_config['api_endpoint']}/cosmos/staking/v1beta1/validators"
+    validators_endpoint = f"{chain_config.api_endpoint}/cosmos/staking/v1beta1/validators"
     all_validators = []  # Initialize a list to collect all validators
 
     next_key = None  # Initialize the pagination key
@@ -42,7 +42,7 @@ def fetch_validators(chain_config):
 
 
 def fetch_and_store_delegators(validator_addr, chain_config):
-    delegations_endpoint = f"{chain_config['api_endpoint']}/cosmos/staking/v1beta1/validators/{validator_addr}/delegations"
+    delegations_endpoint = f"{chain_config.api_endpoint}/cosmos/staking/v1beta1/validators/{validator_addr}/delegations"
     active_delegator_addresses = []  # Initialize an empty list to collect active delegator addresses
 
     next_key = None  # Initialize the pagination key
@@ -78,7 +78,7 @@ def fetch_and_store_delegators(validator_addr, chain_config):
 
 
 def fetch_governance_proposals(chain_config):
-    proposals_endpoint = f"{chain_config['api_endpoint']}/cosmos/gov/v1beta1/proposals"
+    proposals_endpoint = f"{chain_config.api_endpoint}/cosmos/gov/v1beta1/proposals"
     all_proposals = []
     next_key = None
     page_number = 0  # Start from page 0
