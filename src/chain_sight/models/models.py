@@ -62,13 +62,14 @@ class Delegator(Base):
     __tablename__ = 'delegators'
     id = Column(Integer, primary_key=True)
     delegator_address = Column(String, index=True)
-    validator_address = Column(String, nullable=False)
+    validator_address = Column(String, nullable=False)  # Validator's operator_address
+    validator_chain_config_id = Column(Integer, nullable=False)  # Chain config ID linked to the validator
 
     shares = Column(Numeric(precision=60, scale=30))
     balance_amount = Column(Numeric(precision=60, scale=30))
     balance_denom = Column(String)
 
-    # Foreign key that references validator_address and chain_config_id from Validator
+    # Foreign key to reference both validator_address and validator_chain_config_id in the validators table
     __table_args__ = (
         ForeignKeyConstraint(
             ['validator_address', 'validator_chain_config_id'],
