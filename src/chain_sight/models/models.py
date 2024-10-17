@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, JSON, Boolean, Numeric, UniqueConstraint
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, JSON, Boolean, Numeric, UniqueConstraint, \
+    ForeignKeyConstraint, PrimaryKeyConstraint
 from sqlalchemy.orm import relationship
 from chain_sight.services.database_config import Base
 
@@ -26,8 +27,8 @@ class ChainConfig(Base):
 
 class Validator(Base):
     __tablename__ = 'validators'
-    id = Column(Integer, primary_key=True)
-    operator_address = Column(String, index=True)  # Remove 'unique=True' and make it index instead
+    operator_address = Column(String, nullable=False)
+    chain_config_id = Column(Integer, ForeignKey('chain_config.id'), nullable=False)
     consensus_pubkey = Column(String)
     jailed = Column(Boolean)
     status = Column(String)
@@ -42,11 +43,10 @@ class Validator(Base):
     commission_max_rate = Column(Numeric(precision=20, scale=18))
     commission_max_change_rate = Column(Numeric(precision=20, scale=18))
     min_self_delegation = Column(Numeric(precision=50, scale=0))
-    chain_config_id = Column(Integer, ForeignKey('chain_config.id'), nullable=False)
 
-    # Composite unique constraint on operator_address and chain_config_id
+    # Define a composite primary key for operator_address and chain_config_id
     __table_args__ = (
-        UniqueConstraint('operator_address', 'chain_config_id', name='uq_validator_operator_chain'),
+        PrimaryKeyConstraint('operator_address', 'chain_config_id', name='pk_operator_chain'),
     )
 
     # Relationships
@@ -54,19 +54,27 @@ class Validator(Base):
     delegators = relationship("Delegator", back_populates="validator")
 
     def __repr__(self):
-        return (f"<Validator(id={self.id}, operator_address='{self.operator_address}', "
-                f"status='{self.status}', moniker='{self.moniker}', chain='{self.chain_config.name}')>")
+        return (f"<Validator(operator_address='{self.operator_address}', status='{self.status}', "
+                f"moniker='{self.moniker}', chain='{self.chain_config.name}')>")
 
 
 class Delegator(Base):
     __tablename__ = 'delegators'
     id = Column(Integer, primary_key=True)
     delegator_address = Column(String, index=True)
-    validator_address = Column(String, ForeignKey('validators.operator_address'))  # Links to validator
+    validator_address = Column(String, nullable=False)
     shares = Column(Numeric(precision=60, scale=30))
     balance_amount = Column(Numeric(precision=60, scale=30))
     balance_denom = Column(String)
-    chain_config_id = Column(Integer, ForeignKey('chain_config.id'), nullable=False)  # Link delegator to chain
+    chain_config_id = Column(Integer, ForeignKey('chain_config.id'), nullable=False)
+
+    # Define the foreign key to reference both validator_address and chain_config_id in the validators table
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ['validator_address', 'chain_config_id'],
+            ['validators.operator_address', 'validators.chain_config_id']
+        ),
+    )
 
     # Relationships
     validator = relationship("Validator", back_populates="delegators")
