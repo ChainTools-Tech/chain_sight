@@ -124,10 +124,14 @@ def insert_delegator(delegator_data, validator_address, chain_id):
         if existing_delegator:
             # Update balance if it has changed
             is_amount_different = Decimal(existing_delegator.balance_amount) != Decimal(balance["amount"])
-            is_share_different = Decimal(existing_delegator.shares) != Decimal(delegation["share"])
-            logger.debug(f'Existing delegator. Balances (old, new): {existing_delegator.balance_amount}, {balance["amount"]}. Balance different: {is_different}')
+            is_share_different = Decimal(existing_delegator.shares) != Decimal(delegation["shares"])
+
             #if Decimal(existing_delegator.balance_amount) != Decimal(balance["amount"]):
             if is_amount_different or is_share_different:
+                logger.debug(
+                    f'Existing delegator. Balances (old, new): {existing_delegator.balance_amount}, {balance["amount"]}. Balance different: {is_amount_different}')
+                logger.debug(
+                    f'Existing delegator. Shares (old, new): {existing_delegator.shares}, {delegation["shares"]}. Balance different: {is_share_different}')
                 existing_delegator.balance_amount = balance["amount"]
                 existing_delegator.shares = delegation["shares"]
                 session.commit()
