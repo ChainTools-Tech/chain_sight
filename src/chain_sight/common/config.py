@@ -14,7 +14,7 @@ def load_config(chain_name=None):
     try:
         if chain_name:
             # Query for the specified chain
-            chain_config = session.query(ChainConfig).filter(ChainConfig.name == chain_name).first()
+            chain_config = session.query(ChainConfig).filter(ChainConfig.chain_id == chain_name).first()
             logger.debug(f'Loaded {chain_name} chain details: {chain_config}')
             return chain_config
         else:
@@ -24,14 +24,3 @@ def load_config(chain_name=None):
             return chain_configs
     finally:
         session.close()
-
-
-# def load_config_file(chain_name=None):
-#     """Load chain configuration. Optionally, filter by chain name."""
-#     with open('config/chains.json', 'r') as f:
-#         config = json.load(f)
-#     if chain_name:
-#         # Filter for the specified chain
-#         chain_config = next((item for item in config["chains"] if item["name"] == chain_name), None)
-#         return chain_config
-#     return config

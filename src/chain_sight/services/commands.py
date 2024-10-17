@@ -116,7 +116,7 @@ def config_display():
                 "prefix": chain.prefix,
                 "rpc_endpoint": chain.rpc_endpoint,
                 "api_endpoint": chain.api_endpoint,
-                "grpc_endpoint": chain.grpc_endpoint  # This may be None if not set
+                "grpc_endpoint": chain.grpc_endpoint,
             }
             config["chains"].append(chain_dict)
 
@@ -157,6 +157,8 @@ def fetch_and_store_governance_proposals(chain_name):
     proposals = fetch_governance_proposals(chain_config)
     if proposals:
         for proposal in proposals:
+            title = proposal.get("title")
+            logger.debug(f"Processing proposal with title: {title}")
             insert_or_update_governance_proposal(proposal, chain_id)
         logger.info(f"Governance proposals for {chain_name} fetched and stored successfully.")
     else:
