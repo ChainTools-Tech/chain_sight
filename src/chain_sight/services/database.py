@@ -125,10 +125,10 @@ def insert_delegator(delegator_data, validator_address, chain_id):
             new_delegator = Delegator(
                 delegator_address=delegation["delegator_address"],
                 validator_address=validator_address,
+                validator_chain_config_id=chain_config.id,
                 shares=delegation["shares"],
                 balance_amount=int(balance["amount"]),
                 balance_denom=balance["denom"],
-                chain_config_id=chain_config.id  # Link delegator to the chain
             )
             session.add(new_delegator)
             session.commit()
