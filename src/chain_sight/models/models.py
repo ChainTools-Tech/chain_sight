@@ -63,26 +63,25 @@ class Delegator(Base):
     id = Column(Integer, primary_key=True)
     delegator_address = Column(String, index=True)
     validator_address = Column(String, nullable=False)
+
     shares = Column(Numeric(precision=60, scale=30))
     balance_amount = Column(Numeric(precision=60, scale=30))
     balance_denom = Column(String)
-    chain_config_id = Column(Integer, ForeignKey('chain_config.id'), nullable=False)
 
-    # Define the foreign key to reference both validator_address and chain_config_id in the validators table
+    # Foreign key that references validator_address and chain_config_id from Validator
     __table_args__ = (
         ForeignKeyConstraint(
-            ['validator_address', 'chain_config_id'],
+            ['validator_address', 'validator_chain_config_id'],
             ['validators.operator_address', 'validators.chain_config_id']
         ),
     )
 
     # Relationships
     validator = relationship("Validator", back_populates="delegators")
-    chain_config = relationship("ChainConfig", back_populates="delegators")
 
     def __repr__(self):
         return (f"<Delegator(id={self.id}, delegator_address='{self.delegator_address}', "
-                f"validator_address='{self.validator_address}', chain='{self.chain_config.name}')>")
+                f"validator_address='{self.validator_address}')>")
 
 
 class GovernanceProposal(Base):

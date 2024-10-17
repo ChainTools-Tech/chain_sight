@@ -48,6 +48,7 @@ def insert_validator(validator_data, chain_id):
         # Prepare the validator data for insertion
         prepared_data = {
             "operator_address": validator_data.get("operator_address", ""),
+            "chain_config_id": chain_config.id,
             "consensus_pubkey": json.dumps(validator_data.get("consensus_pubkey", {})),
             "jailed": validator_data.get("jailed", False),
             "status": validator_data.get("status", ""),
@@ -63,8 +64,7 @@ def insert_validator(validator_data, chain_id):
                 validator_data.get("commission", {}).get("commission_rates", {}).get("max_rate", 0.0)),
             "commission_max_change_rate": float(
                 validator_data.get("commission", {}).get("commission_rates", {}).get("max_change_rate", 0.0)),
-            "min_self_delegation": int(validator_data.get("min_self_delegation", 1)),
-            "chain_config_id": chain_config.id  # Link the validator to the chain configuration
+            "min_self_delegation": int(validator_data.get("min_self_delegation", 1))
         }
 
         # Insert new validator into the database
