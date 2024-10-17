@@ -90,6 +90,7 @@ class GovernanceProposal(Base):
     id = Column(Integer, primary_key=True)
     proposal_id = Column(String, nullable=False)  # From API, can be same across chains
     chain_id = Column(String, ForeignKey('chain_config.chain_id'), nullable=False)  # Maps to specific chain
+    chain_config_id = Column(Integer, ForeignKey('chain_config.id'), nullable=False)
     title = Column(String)
     description = Column(String)
     proposal_type = Column(String)
