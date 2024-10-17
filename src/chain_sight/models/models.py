@@ -17,7 +17,6 @@ class ChainConfig(Base):
     # Relationships
     validators = relationship("Validator", back_populates="chain_config", cascade="all, delete")
     governance_proposals = relationship("GovernanceProposal", back_populates="chain_config", cascade="all, delete")
-    delegators = relationship("Delegator", back_populates="chain_config", cascade="all, delete")
 
     def __repr__(self):
         return (f"<ChainConfig(id={self.id}, name='{self.name}', chain_id='{self.chain_id}', "
