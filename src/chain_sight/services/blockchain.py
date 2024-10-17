@@ -62,7 +62,7 @@ def fetch_and_store_delegators(validator_addr, chain_config):
             data = response.json()
             delegator_entries = data.get('delegation_responses', [])
             for entry in delegator_entries:
-                insert_delegator(entry, validator_addr, chain_config.id)
+                insert_delegator(entry, validator_addr, chain_config.chain_id)
                 # Collect the delegator_address from each entry for later cleanup
                 active_delegator_addresses.append(entry['delegation']['delegator_address'])
             logger.info(f"Fetched {len(delegator_entries)} delegators for validator {validator_addr}.")
