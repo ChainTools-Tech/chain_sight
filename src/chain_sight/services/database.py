@@ -110,7 +110,7 @@ def insert_delegator(delegator_data, validator_address, chain_id):
         existing_delegator = session.query(Delegator).filter_by(
             delegator_address=delegation["delegator_address"],
             validator_address=validator_address,
-            chain_config_id=chain_config.id  # Ensure the delegator is linked to this chain
+            validator_chain_config_id=chain_config.id
         ).first()
 
         if existing_delegator:
