@@ -2,6 +2,7 @@ import json
 import logging
 
 from dateutil import parser
+from decimal import Decimal
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from chain_sight.models.models import Validator, ChainConfig, Delegator, GovernanceProposal
@@ -73,11 +74,18 @@ def insert_validator(validator_data, chain_id):
         session.commit()
         logger.debug(f"Validator {validator_data.get('operator_address')} for chain {chain_id} inserted successfully.")
 
+    except IntegrityError as e:
+        logger.error(f"IntegrityError occurred while inserting validator: {e}")
+        session.rollback()
+    except SQLAlchemyError as e:
+        logger.error(f"SQLAlchemyError occurred: {e}")
+        session.rollback()
     except Exception as e:
-        logger.error(f"An error occurred: {e}")
+        logger.error(f"An unexpected error occurred: {e}")
         session.rollback()
     finally:
         session.close()
+
 
 
 def insert_delegator(delegator_data, validator_address, chain_id):
@@ -115,8 +123,9 @@ def insert_delegator(delegator_data, validator_address, chain_id):
 
         if existing_delegator:
             # Update balance if it has changed
-            if existing_delegator.balance_amount != int(balance["amount"]):
-                existing_delegator.balance_amount = int(balance["amount"])
+            balance_amount = Decimal(balance["amount"])
+            if existing_delegator.balance_amount != balance_amount:
+                existing_delegator.balance_amount = balance_amount
                 session.commit()
                 logger.debug(
                     f"Updated balance for delegator {delegation['delegator_address']} of validator {validator_address} on chain {chain_id}.")
@@ -135,8 +144,14 @@ def insert_delegator(delegator_data, validator_address, chain_id):
             logger.debug(
                 f"Inserted new delegator {delegation['delegator_address']} for validator {validator_address} on chain {chain_id}.")
 
+    except IntegrityError as e:
+        logger.error(f"IntegrityError occurred while inserting delegator: {e}")
+        session.rollback()
+    except SQLAlchemyError as e:
+        logger.error(f"SQLAlchemyError occurred: {e}")
+        session.rollback()
     except Exception as e:
-        logger.error(f"An error occurred while processing delegator: {e}")
+        logger.error(f"An unexpected error occurred: {e}")
         session.rollback()
     finally:
         session.close()
@@ -211,6 +226,12 @@ def insert_or_update_governance_proposal(proposal_data, chain_id):
 
         session.commit()
 
+    except IntegrityError as e:
+        logger.error(f"IntegrityError: {e}")
+        session.rollback()
+    except SQLAlchemyError as e:
+        logger.error(f"SQLAlchemyError: {e}")
+        session.rollback()
     except KeyError as e:
         logger.error(f"KeyError: Missing {e} in proposal data for Proposal ID {proposal_data.get('proposal_id')}")
         session.rollback()
