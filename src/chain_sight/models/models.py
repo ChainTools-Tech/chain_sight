@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, JSON, Boolean, Numeric
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, JSON, Boolean, Numeric, UniqueConstraint
 from sqlalchemy.orm import relationship
 from chain_sight.services.database_config import Base
 
@@ -27,7 +27,7 @@ class ChainConfig(Base):
 class Validator(Base):
     __tablename__ = 'validators'
     id = Column(Integer, primary_key=True)
-    operator_address = Column(String, unique=False, index=True)  # Not unique across chains
+    operator_address = Column(String, index=True)  # Remove 'unique=True' and make it index instead
     consensus_pubkey = Column(String)
     jailed = Column(Boolean)
     status = Column(String)
@@ -44,9 +44,14 @@ class Validator(Base):
     min_self_delegation = Column(Numeric(precision=50, scale=0))
     chain_config_id = Column(Integer, ForeignKey('chain_config.id'), nullable=False)
 
+    # Composite unique constraint on operator_address and chain_config_id
+    __table_args__ = (
+        UniqueConstraint('operator_address', 'chain_config_id', name='uq_validator_operator_chain'),
+    )
+
     # Relationships
     chain_config = relationship("ChainConfig", back_populates="validators")
-    delegators = relationship("Delegator", back_populates="validator", cascade="all, delete")
+    delegators = relationship("Delegator", back_populates="validator")
 
     def __repr__(self):
         return (f"<Validator(id={self.id}, operator_address='{self.operator_address}', "
