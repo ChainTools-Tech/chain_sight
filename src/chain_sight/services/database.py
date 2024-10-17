@@ -127,7 +127,7 @@ def insert_delegator(delegator_data, validator_address, chain_id):
             if existing_delegator.balance_amount != balance_amount:
                 existing_delegator.balance_amount = balance_amount
                 session.commit()
-                logger.debug(
+                logger.info(
                     f"Updated balance for delegator {delegation['delegator_address']} of validator {validator_address} on chain {chain_id}.")
         else:
             # Insert new delegator
