@@ -192,3 +192,6 @@ chain_sight --fetch governance --chain mantle-1
 Logging is configured to output both to the console and a log file. By default, the log file is chain_sight.log, but you can specify a custom log file using the --log-file option.
 
 The log level defaults to INFO, but you can adjust it using the --log-level option. Available levels include DEBUG, INFO, WARNING, ERROR, and CRITICAL.
+
+---
+Internal tag: 001
